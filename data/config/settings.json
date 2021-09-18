@@ -1,0 +1,5 @@
+{
+	"GachaSMods_trueRandomMode": false,
+	# Boolean. Default `false`.
+	# If true, will allow (almost) any hullmod to be built in, including hullsmods not normally applicable on the ship and hullmods not known by the player.
+}
