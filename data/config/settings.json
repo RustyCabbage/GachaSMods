@@ -2,4 +2,8 @@
 	"GachaSMods_trueRandomMode": false,
 	# Boolean. Default `false`.
 	# If true, will allow (almost) any hullmod to be built in, including hullsmods not normally applicable on the ship and hullmods not known by the player.
+
+	"GachaSMods_onlyKnownHullmods": false,
+	# Boolean. Default `false`.
+	# If true, will only roll hullmods known by the player (unless you're in true random mode in which case it will roll any possibly hullmod regardless).
 }
