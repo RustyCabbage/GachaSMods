@@ -1,4 +1,10 @@
-# Thanks Wisp!
+### Thanks Wisp!
+
+### Also reminder for when I want to refresh the repo
+# See https://www.randallkent.com/2010/04/30/gitignore-not-working/
+# git rm -r --cached .
+# git add .
+# git commit -m "fixing .gitignore"
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij
@@ -115,3 +121,4 @@ fabric.properties
 
 .idea/
 *.iml
+.gitattributes
