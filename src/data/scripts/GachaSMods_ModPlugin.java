@@ -21,7 +21,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-        /* todo: oops this absolutely not what I wanted but I can't fix it right at this moment
+        /* todo: oops this absolutely not what I wanted but I don't feel like fixing it right at this moment
         try {
             Global.getSettings().loadJSON(SETTINGS_JSON, MOD_ID);
         } catch (IOException | JSONException e) {

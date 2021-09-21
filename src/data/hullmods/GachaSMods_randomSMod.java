@@ -23,12 +23,14 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
     // todo: maybe some day I'll externalize these strings
     public static final String MOD_ID = "GachaSMods";
-    //public static final String DATA_KEY = "GachaSMods_SEED_DATA_KEY";
+    public static final String SEED_KEY = MOD_ID + "_" + "SEED_KEY";
+    public static final String LOAD_KEY = MOD_ID + "_" + "LOAD_KEY";
+    public static final String TEMP_SEED_KEY = MOD_ID + "_" + "TEMP_SEED_KEY";
     // true random override
     public static final String TRULY_RANDOM = "eurobeat";
     // settings
     public static final String TRUE_RANDOM_SETTING = MOD_ID + "_" + "trueRandomMode";
-    //public static final String NO_SAVE_SCUMMING_SETTING = MOD_ID + "_" + "noSaveScumming";
+    public static final String NO_SAVE_SCUMMING_SETTING = MOD_ID + "_" + "noSaveScumming";
     public static final String ONLY_KNOWN_HULLMODS_SETTING = MOD_ID + "_" + "onlyKnownHullmods";
     public static final String ONLY_NOT_HIDDEN_HULLMODS_SETTING = MOD_ID + "_" + "onlyNotHiddenHullmods";
     public static final String ONLY_APPLICABLE_HULLMODS_SETTING = MOD_ID + "_" + "onlyApplicableHullmods";
@@ -56,28 +58,63 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
 
+        // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
+        String seedKey = null;
+        String loadKey = null;
+        String tempSeedKey = null;
         Random random = new Random();
-        /* todo: FUCK SEEDS
-        String key = DATA_KEY + "_" + ship.getFleetMemberId();
-        long seed = random.nextLong();
-        if (!(ship.getName().equalsIgnoreCase(TRULY_RANDOM) || Global.getSettings().getBoolean(TRUE_RANDOM_SETTING))
-                && Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
-            seed = getSeed(ship, key);
-            random = new Random(seed);
+        // these will be replaced if noSaveScumming is enabled, else they don't matter
+        long savedSeed = random.nextLong();
+        long tempSeed = savedSeed;
+        boolean shouldLoadSeed;
+
+        // this stuff should only have a unique result once per ship so shouldn't cause any issues
+        if (ship.getFleetMemberId() != null) {
+            seedKey = SEED_KEY + "_" + ship.getFleetMemberId();
+            loadKey = LOAD_KEY + "_" + ship.getFleetMemberId();
+            tempSeedKey = TEMP_SEED_KEY + "_" + ship.getFleetMemberId();
+            if (Global.getSector().getPersistentData().get(loadKey) == null) {
+                Global.getSector().getPersistentData().put(loadKey, true);
+            }
+            if (Global.getSector().getPersistentData().get(tempSeedKey) == null) {
+                Global.getSector().getPersistentData().put(tempSeedKey, tempSeed);
+            }
         }
-         */
 
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
+            // anti-save scum stuff
+            // essentially it had to be done in this roundabout way to make certain of 3 things:
+            // 1. seed changes every time you confirm (so if you restore a d-mod you can still get new s-mods)
+            // 2. s-modding one at a time has the same effect as s-modding everything at once
+            // 3. s-modding is consistent when taking the hullmod on/off and stuff
+            //    (so it can only update when in the process of s-modding so there's a bunch of ugly initialization stuff)
+            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+                shouldLoadSeed = (boolean) Global.getSector().getPersistentData().get(loadKey);
+                savedSeed = getSeed(ship, seedKey);
+                // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
+                if (shouldLoadSeed) {
+                    tempSeed = savedSeed;
+                    Global.getSector().getPersistentData().put(loadKey, false);
+                } else {
+                    tempSeed = (long) Global.getSector().getPersistentData().get(tempSeedKey);
+                }
+                random = new Random(tempSeed); // create new random based on the temp seed. it will either be the saved seed or the continued temp seed chain
+                tempSeed = random.nextLong(); // shuffles to the next long every time the hullmod is s-modded.
+                Global.getSector().getPersistentData().put(tempSeedKey, tempSeed); // save to continue the chain
+            }
+
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
             variant.removePermaMod(spec.getId());
             // dumb way to continue checks during confirmation screen, because otherwise the script stops when it's removed
             // also I don't make it a non-s-mod perma-mod because then you can't s-mod multiple times in a row
             variant.addMod(spec.getId());
 
+            // choose the hullmod to s-mod
             String chosenSModId;
             if (ship.getName().equalsIgnoreCase(TRULY_RANDOM) || Global.getSettings().getBoolean(TRUE_RANDOM_SETTING)) {
+                random = new Random();
                 chosenSModId = getRandomHullmod(ship, random, false, false, false);
             } else {
                 boolean onlyKnownHullMods = Global.getSettings().getBoolean(ONLY_KNOWN_HULLMODS_SETTING);
@@ -85,6 +122,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 boolean onlyApplicableHullmods = Global.getSettings().getBoolean(ONLY_APPLICABLE_HULLMODS_SETTING);
                 chosenSModId = getRandomHullmod(ship, random, onlyKnownHullMods, onlyNotHiddenHullmods, onlyApplicableHullmods);
             }
+            // if nothing is available for some reason...
             if (chosenSModId == null) {
                 //return;
                 chosenSModId = HullMods.DEFECTIVE_MANUFACTORY; // this being the error hullmod mildly amuses me
@@ -94,14 +132,13 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             HullModSpecAPI chosenSModSpec = Global.getSettings().getHullModSpec(chosenSModId);
             adjustHullModForSModding(chosenSModSpec, ship.getHullSize(), random);
 
-            // s-mod if not d-mod
-            // you can restore the ship even if a d-mod is s-modded, so setting them as s-mods is simply unaesthetic for no gain
+            // make sure the variant doesn't already have it as a modular hullmod. I can't remember if this caused issues but overkill never fails
             if (variant.hasHullMod(chosenSModId)) {
                 variant.removeMod(chosenSModId);
             }
             variant.addPermaMod(chosenSModId, true);
             // don't do this because then they don't count as s-mods which means they don't cost story points
-            //variant.addPermaMod(chosenSModId, !(chosenSModSpec.hasTag(Tags.HULLMOD_DMOD) || chosenSModSpec.hasTag(SHOULD_BE_DMOD)));
+            // variant.addPermaMod(chosenSModId, !(chosenSModSpec.hasTag(Tags.HULLMOD_DMOD) || chosenSModSpec.hasTag(SHOULD_BE_DMOD)));
 
             // add to a list of mods to fix up after confirming/cancelling the s-mod process
             addedMods.add(chosenSModId);
@@ -110,7 +147,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // will usually do nothing, exceptions being when it has been s-modded / s-modding has been cancelled
         // had to be done because the confirmation screen also fires this script
         // meaning weird stuff would happen when you cancel the s-modding process
-        if (variant.hasHullMod(spec.getId())) {
+        if (variant.hasHullMod(spec.getId())) { //todo: actually the fact that the script is firing should imply that the variant has the hullmod already...
             // in the case that the player cancels the s-mod process, the potential s-mods will become regular mods
             // which must be removed
             if (!Collections.disjoint(variant.getNonBuiltInHullmods(), addedMods)) {
@@ -121,29 +158,33 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         variant.removeMod(addedModId);
                         //log.info("removing not-s-modded mod " + addedModId);
                     }
-                    // fix any changes made earlier
-                    restoreHullMod(addedModSpec);
+                    restoreHullMod(addedModSpec); // fix any changes made earlier
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
+                //Global.getSector().getPersistentData().put(seedKey, savedSeed);
+                Global.getSector().getPersistentData().put(loadKey, true);
                 // variant.removeMod(spec.getId());
             }
-            // need a way to clear the addedMods list when you confirm
+            // need a way to clear the addedMods list when you confirm. to do so we check that story points were spent on s-modding
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
                 //log.info("s-modding confirmed");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
                 for (String addedModId : addedMods) {
                     HullModSpecAPI addedModSpec = Global.getSettings().getHullModSpec(addedModId);
-                    // as above, so below - fixing up changes made
-                    restoreHullMod(addedModSpec);
+                    restoreHullMod(addedModSpec); // as above, so below - fixing up changes made
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
+                Global.getSector().getPersistentData().put(loadKey, false);
+                Global.getSector().getPersistentData().put(seedKey, tempSeed);
                 // for some reason this doesn't work - gets re-added some point after this step,
                 // and I can't find any way of removing it, like what the heck. RIP
                 //variant.removeMod(spec.getId());
             }
-            // the game doesn't track s-mods that are hidden, which I think I corrected for but just in case putting it here too
+            // blocks the s-modding process if you've reached the max amount
+            // this is necessary because hidden mods don't count towards the s-mod limit
+            // similarly, this is why we use ship.getVariant().getSMods().size() instead of Misc.getCurrSpecialMods(ship.getVariant)
             if (ship.getVariant().getSMods().size() >= Misc.getMaxPermanentMods(ship)) {
                 spec.addTag(Tags.HULLMOD_NO_BUILD_IN);
             } else {
@@ -154,14 +195,16 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
     @Override
     public boolean isApplicableToShip(ShipAPI ship) {
-        if (Misc.getCurrSpecialMods(ship.getVariant()) > Misc.getMaxPermanentMods(ship)) {
+        if (ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
             return false;
         }
         // prevent re-adding when it's at the exact amount
-        // apparently if !isApplicableToShip, variant.addMod() does not work
-        // so this separate rule was needed if you would hit the max # of s-mods, blocking the re-installation of the hullmod
-        // and thereby blocking the checking mechanism
-        if (Misc.getCurrSpecialMods(ship.getVariant()) == Misc.getMaxPermanentMods(ship) && !ship.getVariant().hasHullMod(spec.getId())) {
+        // old comment:
+        // // apparently if !isApplicableToShip, variant.addMod() does not work
+        // // so this separate rule was needed if you would hit the max # of s-mods, blocking the re-installation of the hullmod
+        // // and thereby blocking the checking mechanism
+        // todo: this maybe wasn't the actual cause of the issue, but I don't know what it was, and I don't really care to find out since it works like this
+        if (ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship) && !ship.getVariant().hasHullMod(spec.getId())) {
             return false;
         }
         return true;
@@ -169,7 +212,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
     @Override
     public String getUnapplicableReason(ShipAPI ship) {
-        if (Misc.getCurrSpecialMods(ship.getVariant()) >= Misc.getMaxPermanentMods(ship)) {
+        if (ship.getVariant().getSMods().size() >= Misc.getMaxPermanentMods(ship)) {
             return AT_S_MOD_LIMIT;
         }
         return null;
@@ -180,11 +223,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         return Misc.getHighlightColor();
     }
 
-    /* todo: fix
-    public static long getSeed(ShipAPI ship, String key) {
+    // Loads the seed entry for a given ship, or creates it if none exists
+    public static long getSeed(ShipAPI ship, String seedKey) {
         long seed = new Random().nextLong();
-        if (Global.getSector().getPersistentData().get(key) != null) {
-            seed = (long) Global.getSector().getPersistentData().get(key);
+        if (Global.getSector().getPersistentData().get(seedKey) != null) {
+            seed = (long) Global.getSector().getPersistentData().get(seedKey);
+            //log.info("Loaded seed key entry: " + seed);
         } else {
             if (Global.getSector().getSeedString() != null) {
                 seed = Global.getSector().getSeedString().hashCode();
@@ -195,11 +239,11 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             if (ship.getFleetMemberId() != null) {
                 seed *= ship.getFleetMemberId().hashCode();
             }
-            Global.getSector().getPersistentData().put(key, seed);
+            Global.getSector().getPersistentData().put(seedKey, seed);
+            //log.info("Created seed key entry: " + seed);
         }
         return seed;
     }
-     */
 
     // todo: add weights or something, that'd be pretty pog
     // like inverse of their OP, so you'd have a 4x better chance of getting expanded mags than heavy armor for capital ships
@@ -301,6 +345,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         }
     }
 
+    // fix all the stuff we broke in the previous method
     public static void restoreHullMod(HullModSpecAPI hullModSpec) {
         // fix hidden
         if (hullModSpec.hasTag(SHOULD_BE_HIDDEN)) {
@@ -344,6 +389,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         }
     }
 
+    // old and deprecated stuff that I don't wanna delete in case I have to look them up again :)
+
+    // todo: maybe I should make this an option? lotsa work for pretty mediocre gain
     // same method as above but with an additional thing for
     // fixing d-mods looking like s-mods
     // it's not perfect because it won't swap to be a d-mod until swap away from and back to the ship

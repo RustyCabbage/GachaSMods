@@ -12,7 +12,7 @@
 	# Boolean. Default `false`.
 	# If true, will only roll hullmods known by the player.
 	
-	"GachaSMods_onlyNotHiddenHullmods": false,
+	"GachaSMods_onlyNotHiddenHullmods": true,
 	# Boolean. Default `true`.
 	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods)
 	
