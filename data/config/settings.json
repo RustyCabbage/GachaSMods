@@ -1,9 +1,23 @@
 {
 	"GachaSMods_trueRandomMode": false,
 	# Boolean. Default `false`.
-	# If true, will allow (almost) any hullmod to be built in, including hullsmods not normally applicable on the ship and hullmods not known by the player.
+	# If true, will roll (almost) any hullmod.
+	### NOTE: This supercedes all other settings. It is equivalent to setting all other settings to false.
+
+	"GachaSMods_noSaveScumming": true,
+	# Boolean. Default `true`.
+	# If true, ships will roll the same s-mods and bonus xp every time. Unless the in-game re-roll mechanic has been used.
 
 	"GachaSMods_onlyKnownHullmods": false,
 	# Boolean. Default `false`.
-	# If true, will only roll hullmods known by the player (unless you're in true random mode in which case it will roll any possibly hullmod regardless).
+	# If true, will only roll hullmods known by the player.
+	
+	"GachaSMods_onlyNotHiddenHullmods": false,
+	# Boolean. Default `true`.
+	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods)
+	
+	"GachaSMods_onlyApplicableHullmods": true,
+	# Boolean. Default `true`.
+	# If true, will only roll hullmods that are applicable on the ship (so no safety overrides for capital ships).
+	# May have strange results with hidden hullmods.
 }
