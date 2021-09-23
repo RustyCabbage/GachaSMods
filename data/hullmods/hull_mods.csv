@@ -1,2 +1,3 @@
 name,id,tier,rarity,tech/manufacturer,tags,uiTags,base value,unlocked,hidden,hiddenEverywhere,cost_frigate,cost_dest,cost_cruiser,cost_capital,script,desc,short,sprite
-{Random S-Mod},GachaSMods_randomSMod,0,,Unique,special,Special,0,TRUE,,,0,0,0,0,data.hullmods.GachaSMods_randomSMod,Builds in a random hullmod when built into the ship. No effect otherwise.,,graphics/fx/question_mark.png
+{Random S-Mod},GachaSMods_randomSMod,0,,Unique,"GachaSMods, special",Special,0,TRUE,,,0,0,0,0,data.hullmods.GachaSMods_randomSMod,"When built into the ship, adds a random hullmod as an s-mod. No effect otherwise.",,graphics/fx/question_mark.png
+{Remove S-Mod},GachaSMods_removeSMods,0,,Unique,"GachaSMods, special",Special,0,TRUE,,,0,0,0,0,data.hullmods.GachaSMods_removeSMods,"When built into the ship, removes a random number of s-mods. Story points are not refunded. No effect otherwise",,graphics/icons/intel/cancel20.png

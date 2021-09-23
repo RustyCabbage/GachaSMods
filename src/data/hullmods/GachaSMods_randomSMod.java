@@ -17,43 +17,44 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import static data.scripts.GachaSMods_Utils.*;
+
 public class GachaSMods_randomSMod extends BaseHullMod {
 
     private static final Logger log = Global.getLogger(GachaSMods_randomSMod.class);
-
-    // todo: maybe some day I'll externalize these strings
-    public static final String MOD_ID = "GachaSMods";
-    public static final String SEED_KEY = MOD_ID + "_" + "SEED_KEY";
-    public static final String LOAD_KEY = MOD_ID + "_" + "LOAD_KEY";
-    public static final String TEMP_SEED_KEY = MOD_ID + "_" + "TEMP_SEED_KEY";
-    // true random override
-    public static final String TRULY_RANDOM = "eurobeat";
-    // settings
-    public static final String TRUE_RANDOM_SETTING = MOD_ID + "_" + "trueRandomMode";
-    public static final String NO_SAVE_SCUMMING_SETTING = MOD_ID + "_" + "noSaveScumming";
-    public static final String ONLY_KNOWN_HULLMODS_SETTING = MOD_ID + "_" + "onlyKnownHullmods";
-    public static final String ONLY_NOT_HIDDEN_HULLMODS_SETTING = MOD_ID + "_" + "onlyNotHiddenHullmods";
-    public static final String ONLY_APPLICABLE_HULLMODS_SETTING = MOD_ID + "_" + "onlyApplicableHullmods";
-    // used to fix up hullmods I messed with
-    public static final String SHOULD_BE_HIDDEN = MOD_ID + "_" + "shouldBeHidden";
-    public static final String SHOULD_BE_DMOD = MOD_ID + "_" + "shouldBeDMod";
+    // keys saved to sector.getPersistentData()
+    //public static final String SEED_KEY = MOD_ID + "_" + "SEED_KEY";
+    //public static final String LOAD_KEY = MOD_ID + "_" + "LOAD_KEY";
+    //public static final String TEMP_SEED_KEY = MOD_ID + "_" + "TEMP_SEED_KEY";
+    // settings in data/config/settings.json
+    //public static final String TRUE_RANDOM_SETTING = MOD_ID + "_" + "trueRandomMode";
+    //public static final String NO_SAVE_SCUMMING_SETTING = MOD_ID + "_" + "noSaveScumming";
+    //public static final String ONLY_KNOWN_HULLMODS_SETTING = MOD_ID + "_" + "onlyKnownHullmods";
+    //public static final String ONLY_NOT_HIDDEN_HULLMODS_SETTING = MOD_ID + "_" + "onlyNotHiddenHullmods";
+    //public static final String ONLY_APPLICABLE_HULLMODS_SETTING = MOD_ID + "_" + "onlyApplicableHullmods";
+    // tags used to fix up hullmods I messed with
+    private final String HULLMOD_CONFLICT = getString("gachaConflict");
+    private static final String SHOULD_BE_HIDDEN = MOD_ID + "_" + "shouldBeHidden";
+    private static final String SHOULD_BE_DMOD = MOD_ID + "_" + "shouldBeDMod";
+    // used to randomize OP costs
+    private static final int RANDOM_COST_MIN = 2;
+    private static final int RANDOM_COST_MAX = 10;
+    private static final String FRIGATE_CODE = "ff";
+    private static final String DESTROYER_CODE = "dd";
+    private static final String CRUISER_CODE = "cc";
+    private static final String CAPITAL_SHIP_CODE = "bb";
     // if your hullmod costs over 9999 i'll kill you
-    public static final int RANDOM_COST_MIN = 2;
-    public static final int RANDOM_COST_MAX = 10;
-    public static final String FRIGATE_CODE = "ff";
-    public static final String DESTROYER_CODE = "dd";
-    public static final String CRUISER_CODE = "cc";
-    public static final String CAPITAL_SHIP_CODE = "bb";
-    public static final String OP_COST_REGEX = "^(" + MOD_ID + ")" + "_"
+    private static final String OP_COST_REGEX = "^(" + MOD_ID + ")" + "_"
             + "(" + FRIGATE_CODE + "|" + DESTROYER_CODE + "|" + CRUISER_CODE + "|" + CAPITAL_SHIP_CODE + ")" + "_"
             + "([0-9]$|[1-9][0-9]$|[1-9][0-9][0-9]$|[1-9][0-9][0-9][0-9])$";
-    // not applicable message
-    public static final String AT_S_MOD_LIMIT = "Ship is at the built-in hullmod limit";
+    // externalized strings
+    private final String RANDOM_OVERRIDE = getString("randomOverride"); // "eurobeat"
+    private final String AT_S_MOD_LIMIT = getString("randomInapplicable"); // "Ship is at the built-in hullmod limit"
 
-    // yeah, yeah they only instantiate once per class blah blah blah it should be fine
+    // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
-    private static final ArrayList<String> addedMods = new ArrayList<>();
-    private static int numSP = -1;
+    private final ArrayList<String> addedMods = new ArrayList<>(); //cleared every time
+    private int numSP = -1; //constant per character
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
@@ -91,9 +92,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // 3. s-modding is consistent when taking the hullmod on/off and stuff
             //    (so it can only update when in the process of s-modding so there's a bunch of ugly initialization stuff)
             if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
-                shouldLoadSeed = (boolean) Global.getSector().getPersistentData().get(loadKey);
                 savedSeed = getSeed(ship, seedKey);
                 // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
+                shouldLoadSeed = (boolean) Global.getSector().getPersistentData().get(loadKey);
                 if (shouldLoadSeed) {
                     tempSeed = savedSeed;
                     Global.getSector().getPersistentData().put(loadKey, false);
@@ -113,7 +114,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
             // choose the hullmod to s-mod
             String chosenSModId;
-            if (ship.getName().equalsIgnoreCase(TRULY_RANDOM) || Global.getSettings().getBoolean(TRUE_RANDOM_SETTING)) {
+            if (ship.getName().equalsIgnoreCase(RANDOM_OVERRIDE) || Global.getSettings().getBoolean(TRUE_RANDOM_SETTING)) {
                 random = new Random();
                 chosenSModId = getRandomHullmod(ship, random, false, false, false);
             } else {
@@ -147,7 +148,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // will usually do nothing, exceptions being when it has been s-modded / s-modding has been cancelled
         // had to be done because the confirmation screen also fires this script
         // meaning weird stuff would happen when you cancel the s-modding process
-        if (variant.hasHullMod(spec.getId())) { //todo: actually the fact that the script is firing should imply that the variant has the hullmod already...
+        //if (variant.getNonBuiltInHullmods().contains(spec.getId())) { //todo: probably safe to remove but commenting out just in case
             // in the case that the player cancels the s-mod process, the potential s-mods will become regular mods
             // which must be removed
             if (!Collections.disjoint(variant.getNonBuiltInHullmods(), addedMods)) {
@@ -162,9 +163,8 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
-                //Global.getSector().getPersistentData().put(seedKey, savedSeed);
                 Global.getSector().getPersistentData().put(loadKey, true);
-                // variant.removeMod(spec.getId());
+                //variant.removeMod(spec.getId()); // kind of annoying to have to re-add repeatedly
             }
             // need a way to clear the addedMods list when you confirm. to do so we check that story points were spent on s-modding
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
@@ -180,7 +180,10 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 Global.getSector().getPersistentData().put(seedKey, tempSeed);
                 // for some reason this doesn't work - gets re-added some point after this step,
                 // and I can't find any way of removing it, like what the heck. RIP
-                //variant.removeMod(spec.getId());
+                // update: it gets removed upon switching away to another ship, but will remain with any action that checks the variant
+                // (i.e. anything that isn't swapping to another ship or leaving the refit screen)
+                // the inconsistency is probably more annoying than just leaving the hullmod there, so commented out it is
+                // variant.removeMod(spec.getId());
             }
             // blocks the s-modding process if you've reached the max amount
             // this is necessary because hidden mods don't count towards the s-mod limit
@@ -190,7 +193,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             } else {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
-        }
+        //}
     }
 
     @Override
@@ -207,6 +210,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         if (ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship) && !ship.getVariant().hasHullMod(spec.getId())) {
             return false;
         }
+        if (shipHasOtherModInCategory(ship, spec.getId(), MOD_ID)) {
+            return false;
+        }
         return true;
     }
 
@@ -214,6 +220,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     public String getUnapplicableReason(ShipAPI ship) {
         if (ship.getVariant().getSMods().size() >= Misc.getMaxPermanentMods(ship)) {
             return AT_S_MOD_LIMIT;
+        }
+        if (shipHasOtherModInCategory(ship, spec.getId(), MOD_ID)) {
+            return HULLMOD_CONFLICT + getOtherModsInCategory(ship, spec.getId(), MOD_ID);
         }
         return null;
     }
@@ -265,7 +274,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 // I don't want to make it super tedious by making people leave the spaceport for better odds tho
                 if (!variant.getPermaMods().contains(hullmodId)
                         && !variant.getHullSpec().getBuiltInMods().contains(hullmodId)
-                        && !hullmodId.equals(spec.getId())) {
+                        && !hullmodSpec.getTags().contains(MOD_ID)) {
                     if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
                             || (onlyNotHiddenHullmods && hullmodSpec.isHidden())) {
                         continue;
@@ -280,7 +289,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 if (!variant.getPermaMods().contains(hullmodId)
                         && !variant.getHullSpec().getBuiltInMods().contains(hullmodId)
                         && !hullmodSpec.isHiddenEverywhere() // what if shard spawner were an option? nah, taking it out cuz there's too many headaches from it
-                        && hullmodSpec != spec) {
+                        && !hullmodSpec.getTags().contains(MOD_ID)) {
                     if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
                             || (onlyNotHiddenHullmods && hullmodSpec.isHidden())) {
                         continue;
@@ -363,7 +372,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             //(tag + ": " + tag.matches(OP_COST_REGEX));
             if (tag.matches(OP_COST_REGEX)) {
                 opCostTag = tag;
-                String hullSize = tag.split("_")[1]; // todo: does this also need to be externalized? idek
+                String hullSize = tag.split("_")[1];
                 int opCost = Integer.parseInt(tag.split("_")[2]);
                 switch (hullSize) {
                     case FRIGATE_CODE:
@@ -387,6 +396,17 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         if (opCostTag != null) {
             hullModSpec.getTags().remove(opCostTag);
         }
+    }
+
+    public String getOtherModsInCategory(ShipAPI ship, String currMod, String category) {
+        String otherMods = null;
+        for (String id : ship.getVariant().getHullMods()) {
+            HullModSpecAPI mod = Global.getSettings().getHullModSpec(id);
+            if (!mod.hasTag(category)) continue;
+            if (id.equals(currMod)) continue;
+            otherMods = otherMods == null ? mod.getDisplayName() : otherMods + ", " + mod.getDisplayName(); //todo externalize?
+        }
+        return otherMods;
     }
 
     // old and deprecated stuff that I don't wanna delete in case I have to look them up again :)

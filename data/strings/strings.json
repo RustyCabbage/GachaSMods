@@ -1,0 +1,8 @@
+{
+    "GachaSMods":{
+        "randomOverride": "eurobeat",
+        "gachaConflict": "Incompatible with ",
+        "randomInapplicable": "Ship is at the s-mod limit",
+        "removeInapplicable": "Ship has no s-mods",
+    }
+}
