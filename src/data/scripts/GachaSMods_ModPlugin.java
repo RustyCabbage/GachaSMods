@@ -3,9 +3,12 @@ package data.scripts;
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
 
 import static data.scripts.GachaSMods_Utils.*;
 
@@ -25,42 +28,52 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             log.error(LOAD_JSON_ERROR);
         }
         */
+        // todo: should these hullmods require a spaceport?
+        // block building in all other hullmods
         for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
             if (!hullmod.hasTag(Tags.HULLMOD_NO_BUILD_IN)
-                    && !((hullmod.getId().equals(RANDOM_SMOD_ID) || hullmod.getId().equals(REMOVE_SMOD_ID)))) {
+                    && !hullmod.hasTag(MOD_ID)) {
                 hullmod.addTag(Tags.HULLMOD_NO_BUILD_IN);
             }
         }
-        // todo: should these hullmods require a spaceport?
+        // remove hullmods from being known by other factions for save compatibility
+        for (FactionAPI faction : Global.getSector().getAllFactions()) {
+            ArrayList<String> hullModsToRemove = new ArrayList<>();
+            if (faction.getId().equals(Factions.PLAYER)) {
+                continue;
+            }
+            for (String hullModId : faction.getKnownHullMods()) {
+                if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
+                    hullModsToRemove.add(hullModId);
+                }
+            }
+            for (String hullModId : hullModsToRemove) {
+                faction.removeKnownHullMod(hullModId);
+            }
+        }
     }
 
+    // for save compatibility
     @Override
     public void beforeGameSave() {
-        for (FactionAPI faction : Global.getSector().getAllFactions()) {
-            // todo: I could probably make this less terrible
-            if (faction.getKnownHullMods().contains(RANDOM_SMOD_ID)) {
-                faction.removeKnownHullMod(RANDOM_SMOD_ID);
+        FactionAPI faction = Global.getSector().getPlayerFaction();
+        ArrayList<String> hullModsToRemove = new ArrayList<>();
+        for (String hullModId : faction.getKnownHullMods()) {
+            if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
+                hullModsToRemove.add(hullModId);
             }
-            if (faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
-                faction.removeKnownHullMod(REMOVE_SMOD_ID);
-            }
-            if (faction.getKnownHullMods().contains(PLACEHOLDER_ID)) {
-                faction.removeKnownHullMod(PLACEHOLDER_ID);
-            }
+        }
+        for (String hullModId : hullModsToRemove) {
+            faction.removeKnownHullMod(hullModId);
         }
     }
 
     @Override
     public void afterGameSave() {
-        for (FactionAPI faction : Global.getSector().getAllFactions()) {
-            if (!faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
-                faction.addKnownHullMod(RANDOM_SMOD_ID);
-            }
-            if (!faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
-                faction.addKnownHullMod(REMOVE_SMOD_ID);
-            }
-            if (!faction.getKnownHullMods().contains(PLACEHOLDER_ID)) {
-                faction.addKnownHullMod(PLACEHOLDER_ID);
+        FactionAPI faction = Global.getSector().getPlayerFaction();
+        for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
+            if (hullmod.hasTag(MOD_ID)) {
+                faction.addKnownHullMod(hullmod.getId());
             }
         }
     }

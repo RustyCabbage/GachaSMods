@@ -25,6 +25,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     private final String HULLMOD_CONFLICT = getString("gachaConflict");
     private final String NO_SMODS = getString("removeInapplicable"); // "Ship is at the built-in hullmod limit"
+    private final int MAX_REMOVABLE_SMODS = 3;
 
     // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
@@ -67,7 +68,8 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
             // min 1 because I don't hate you all that much (can't say I won't change my mind)
             // max 3 because I don't love you all that much (and I don't hate myself that much)
-            int numSModsToRemove = 1 + random.nextInt(Math.min(3, numSMods));
+            // todo: make this adjustable
+            int numSModsToRemove = 1 + random.nextInt(Math.min(MAX_REMOVABLE_SMODS, numSMods));
             log.info("Removing " + numSModsToRemove + " s-mods");
             for (int i = 1; i <= numSModsToRemove; i++) {
                 String pickId = picker.pick(random);
@@ -103,7 +105,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                     log.info("Re-added " + removedModId);
                 }
 
-                for (int i = 0; i <= 3; i++) {
+                for (int i = 0; i <= MAX_REMOVABLE_SMODS; i++) {
                     if (variant.hasHullMod(PLACEHOLDER_ID + i)) {
                         variant.removeMod(PLACEHOLDER_ID + i);
                         restoreHullMod(PLACEHOLDER_ID + i);
@@ -121,7 +123,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 // it gets removed upon switching away to another ship, but will remain with any action that checks the variant
                 // (i.e. anything that isn't swapping to another ship or leaving the refit screen)
                 // it's very necessary to remove this mod for save compatibility, so we'll do our best
-                for (int i = 0; i <= 3; i++) {
+                for (int i = 0; i <= MAX_REMOVABLE_SMODS; i++) {
                     variant.removePermaMod(PLACEHOLDER_ID + i);
                     restoreHullMod(PLACEHOLDER_ID + i);
                 }

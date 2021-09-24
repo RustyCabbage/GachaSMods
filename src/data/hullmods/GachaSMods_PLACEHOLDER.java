@@ -20,8 +20,7 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
 
     private static final Logger log = Global.getLogger(GachaSMods_PLACEHOLDER.class);
 
-    private final String SECTION_HEADING = getString("sectionHeading");
-
+    // for save compatibility
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
         ShipVariantAPI variant = ship.getVariant();
@@ -33,6 +32,7 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
 
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
+        String SECTION_HEADING = getString("sectionHeading");
         String TIPS_PATH = "data/strings/tips.json";
         String STARSECTOR_CORE = "starsector-core";
         float PAD = 5f;
