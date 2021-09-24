@@ -18,6 +18,6 @@
 	
 	"GachaSMods_onlyApplicableHullmods": true,
 	# Boolean. Default `true`.
-	# If true, will only roll hullmods that are applicable on the ship (so no safety overrides for capital ships).
+	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
 	# May have strange results with hidden hullmods.
 }
