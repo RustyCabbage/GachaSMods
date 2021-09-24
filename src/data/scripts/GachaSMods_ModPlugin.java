@@ -7,14 +7,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import org.apache.log4j.Logger;
 
-import static data.scripts.GachaSMods_Utils.MOD_ID;
+import static data.scripts.GachaSMods_Utils.*;
 
 public class GachaSMods_ModPlugin extends BaseModPlugin {
 
     private static final Logger log = Global.getLogger(GachaSMods_ModPlugin.class);
 
-    public static String RANDOM_SMOD_ID = MOD_ID + "_" + "randomSMod";
-    public static String REMOVE_SMOD_ID = MOD_ID + "_" + "removeSMods";
     //public static String SETTINGS_JSON = "data/config/settings.json"; // todo: Idk does this need to be externalized?
     //public static String LOAD_JSON_ERROR = "Could not load " + MOD_ID + "/" + SETTINGS_JSON;
 
@@ -39,8 +37,15 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
     @Override
     public void beforeGameSave() {
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
+            // todo: I could probably make this less terrible
             if (faction.getKnownHullMods().contains(RANDOM_SMOD_ID)) {
                 faction.removeKnownHullMod(RANDOM_SMOD_ID);
+            }
+            if (faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
+                faction.removeKnownHullMod(REMOVE_SMOD_ID);
+            }
+            if (faction.getKnownHullMods().contains(PLACEHOLDER_ID)) {
+                faction.removeKnownHullMod(PLACEHOLDER_ID);
             }
         }
     }
@@ -48,8 +53,14 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
     @Override
     public void afterGameSave() {
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
-            if (!faction.getKnownHullMods().contains(RANDOM_SMOD_ID)) {
+            if (!faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
                 faction.addKnownHullMod(RANDOM_SMOD_ID);
+            }
+            if (!faction.getKnownHullMods().contains(REMOVE_SMOD_ID)) {
+                faction.addKnownHullMod(REMOVE_SMOD_ID);
+            }
+            if (!faction.getKnownHullMods().contains(PLACEHOLDER_ID)) {
+                faction.addKnownHullMod(PLACEHOLDER_ID);
             }
         }
     }

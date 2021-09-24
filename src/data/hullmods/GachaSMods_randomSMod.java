@@ -22,20 +22,11 @@ import static data.scripts.GachaSMods_Utils.*;
 public class GachaSMods_randomSMod extends BaseHullMod {
 
     private static final Logger log = Global.getLogger(GachaSMods_randomSMod.class);
-    // keys saved to sector.getPersistentData()
-    //public static final String SEED_KEY = MOD_ID + "_" + "SEED_KEY";
-    //public static final String LOAD_KEY = MOD_ID + "_" + "LOAD_KEY";
-    //public static final String TEMP_SEED_KEY = MOD_ID + "_" + "TEMP_SEED_KEY";
-    // settings in data/config/settings.json
-    //public static final String TRUE_RANDOM_SETTING = MOD_ID + "_" + "trueRandomMode";
-    //public static final String NO_SAVE_SCUMMING_SETTING = MOD_ID + "_" + "noSaveScumming";
-    //public static final String ONLY_KNOWN_HULLMODS_SETTING = MOD_ID + "_" + "onlyKnownHullmods";
-    //public static final String ONLY_NOT_HIDDEN_HULLMODS_SETTING = MOD_ID + "_" + "onlyNotHiddenHullmods";
-    //public static final String ONLY_APPLICABLE_HULLMODS_SETTING = MOD_ID + "_" + "onlyApplicableHullmods";
     // tags used to fix up hullmods I messed with
     private final String HULLMOD_CONFLICT = getString("gachaConflict");
     private static final String SHOULD_BE_HIDDEN = MOD_ID + "_" + "shouldBeHidden";
     private static final String SHOULD_BE_DMOD = MOD_ID + "_" + "shouldBeDMod";
+    private static final String SHOULD_BE_HIDDEN_EVERYWHERE = MOD_ID + "_" + "shouldBeHiddenEverywhere";
     // used to randomize OP costs
     private static final int RANDOM_COST_MIN = 2;
     private static final int RANDOM_COST_MAX = 10;
@@ -72,9 +63,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
         // this stuff should only have a unique result once per ship so shouldn't cause any issues
         if (ship.getFleetMemberId() != null) {
-            seedKey = SEED_KEY + "_" + ship.getFleetMemberId();
-            loadKey = LOAD_KEY + "_" + ship.getFleetMemberId();
-            tempSeedKey = TEMP_SEED_KEY + "_" + ship.getFleetMemberId();
+            seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
+            loadKey = SHOULD_LOAD_SEED + "_" + ship.getFleetMemberId();
+            tempSeedKey = TEMP_SEED + "_" + ship.getFleetMemberId();
             if (Global.getSector().getPersistentData().get(loadKey) == null) {
                 Global.getSector().getPersistentData().put(loadKey, true);
             }
@@ -130,9 +121,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             }
             // need to do some clean up beforehand if the hullmod is a hidden mod or a d-mod
             // also randomizes the cost, so you can't predict the hullmod based on the xp cost
-            HullModSpecAPI chosenSModSpec = Global.getSettings().getHullModSpec(chosenSModId);
-            adjustHullModForSModding(chosenSModSpec, ship.getHullSize(), random);
-
+            adjustHullModForSModding(chosenSModId, ship.getHullSize(), true, random);
             // make sure the variant doesn't already have it as a modular hullmod. I can't remember if this caused issues but overkill never fails
             if (variant.hasHullMod(chosenSModId)) {
                 variant.removeMod(chosenSModId);
@@ -148,18 +137,17 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // will usually do nothing, exceptions being when it has been s-modded / s-modding has been cancelled
         // had to be done because the confirmation screen also fires this script
         // meaning weird stuff would happen when you cancel the s-modding process
-        //if (variant.getNonBuiltInHullmods().contains(spec.getId())) { //todo: probably safe to remove but commenting out just in case
+        if (variant.getNonBuiltInHullmods().contains(spec.getId())) { //todo: probably safe to remove but commenting out just in case
             // in the case that the player cancels the s-mod process, the potential s-mods will become regular mods
             // which must be removed
             if (!Collections.disjoint(variant.getNonBuiltInHullmods(), addedMods)) {
-                //log.info("s-modding cancelled");
+                //log.info("S-modding cancelled");
                 for (String addedModId : addedMods) {
-                    HullModSpecAPI addedModSpec = Global.getSettings().getHullModSpec(addedModId);
                     if (variant.getNonBuiltInHullmods().contains(addedModId)) {
                         variant.removeMod(addedModId);
                         //log.info("removing not-s-modded mod " + addedModId);
                     }
-                    restoreHullMod(addedModSpec); // fix any changes made earlier
+                    restoreHullMod(addedModId); // fix any changes made earlier
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
@@ -168,11 +156,10 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             }
             // need a way to clear the addedMods list when you confirm. to do so we check that story points were spent on s-modding
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
-                //log.info("s-modding confirmed");
+                //log.info("S-modding confirmed");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
                 for (String addedModId : addedMods) {
-                    HullModSpecAPI addedModSpec = Global.getSettings().getHullModSpec(addedModId);
-                    restoreHullMod(addedModSpec); // as above, so below - fixing up changes made
+                    restoreHullMod(addedModId); // as above, so below - fixing up changes made
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
@@ -193,7 +180,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             } else {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
-        //}
+        }
     }
 
     @Override
@@ -310,7 +297,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     }
 
     // basically if you add a hidden or d-mod the game doesn't know how to remove it in the confirmation screen, so we're fixing that
-    public static void adjustHullModForSModding(HullModSpecAPI hullModSpec, ShipAPI.HullSize hullSize, Random random) {
+    public static void adjustHullModForSModding(HullModSpecAPI hullModSpec, ShipAPI.HullSize hullSize, boolean adjustOPCost, Random random) {
         // do this or else it auto adds the s-mod without checking for story point usage
         // similar story for d-mods
         if (hullModSpec.isHidden()) {
@@ -318,48 +305,63 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             hullModSpec.addTag(SHOULD_BE_HIDDEN);
             //log.info("setting hidden to false for " + hullModSpec.getId());
         }
+        if (hullModSpec.isHiddenEverywhere()) {
+            hullModSpec.setHiddenEverywhere(false);
+            hullModSpec.addTag(SHOULD_BE_HIDDEN_EVERYWHERE);
+        }
         if (hullModSpec.hasTag(Tags.HULLMOD_DMOD)) {
             hullModSpec.getTags().remove(Tags.HULLMOD_DMOD);
             hullModSpec.addTag(SHOULD_BE_DMOD);
             //log.info("removing dmod tag from " + hullModSpec.getId());
         }
-        // randomizes OP cost so that you can't predict the hullmod based on xp gain
-        // adds a tag so that we can remember the original cost
-        if (random == null) {
-            random = new Random();
+        if (adjustOPCost) {
+            // randomizes OP cost so that you can't predict the hullmod based on xp gain
+            // adds a tag so that we can remember the original cost
+            if (random == null) {
+                random = new Random();
+            }
+            // random number between 2 (ATG/Expanded Mags) to 10 (ECM/Nav Relay for FFs)
+            // if you get Command Center or SO, lucky you!
+            int opCost = (RANDOM_COST_MIN + random.nextInt(RANDOM_COST_MAX + 1 - RANDOM_COST_MIN));
+            //log.info(opCost);
+            switch (hullSize) {
+                case FRIGATE:
+                    hullModSpec.addTag(MOD_ID + "_" + FRIGATE_CODE + "_" + hullModSpec.getFrigateCost());
+                    hullModSpec.setFrigateCost(opCost);
+                    break;
+                case DESTROYER:
+                    hullModSpec.addTag(MOD_ID + "_" + DESTROYER_CODE + "_" + hullModSpec.getDestroyerCost());
+                    hullModSpec.setDestroyerCost(2 * opCost);
+                    break;
+                case CRUISER:
+                    hullModSpec.addTag(MOD_ID + "_" + CRUISER_CODE + "_" + hullModSpec.getCruiserCost());
+                    hullModSpec.setCruiserCost(3 * opCost);
+                    break;
+                case CAPITAL_SHIP:
+                    hullModSpec.addTag(MOD_ID + "_" + CAPITAL_SHIP_CODE + "_" + hullModSpec.getCapitalCost());
+                    hullModSpec.setCapitalCost(5 * opCost);
+                    break;
+                case DEFAULT:
+                    break; // do nothing
+            }
         }
-        // random number between 2 (ATG/Expanded Mags) to 10 (ECM/Nav Relay for FFs)
-        // if you get Command Center or SO, lucky you!
-        int opCost = (RANDOM_COST_MIN + random.nextInt(RANDOM_COST_MAX + 1 - RANDOM_COST_MIN));
-        //log.info(opCost);
-        switch (hullSize) {
-            case FRIGATE:
-                hullModSpec.addTag(MOD_ID + "_" + FRIGATE_CODE + "_" + hullModSpec.getFrigateCost());
-                hullModSpec.setFrigateCost(opCost);
-                break;
-            case DESTROYER:
-                hullModSpec.addTag(MOD_ID + "_" + DESTROYER_CODE + "_" + hullModSpec.getDestroyerCost());
-                hullModSpec.setDestroyerCost(2 * opCost);
-                break;
-            case CRUISER:
-                hullModSpec.addTag(MOD_ID + "_" + CRUISER_CODE + "_" + hullModSpec.getCruiserCost());
-                hullModSpec.setCruiserCost(3 * opCost);
-                break;
-            case CAPITAL_SHIP:
-                hullModSpec.addTag(MOD_ID + "_" + CAPITAL_SHIP_CODE + "_" + hullModSpec.getCapitalCost());
-                hullModSpec.setCapitalCost(5 * opCost);
-                break;
-            case DEFAULT:
-                break; // do nothing
-        }
+    }
+
+    public static void adjustHullModForSModding(String hullModId, ShipAPI.HullSize hullSize, boolean adjustOPCost, Random random) {
+        adjustHullModForSModding(Global.getSettings().getHullModSpec(hullModId), hullSize, adjustOPCost, random);
     }
 
     // fix all the stuff we broke in the previous method
     public static void restoreHullMod(HullModSpecAPI hullModSpec) {
-        // fix hidden
+        // fix Hidden
         if (hullModSpec.hasTag(SHOULD_BE_HIDDEN)) {
             hullModSpec.setHidden(true);
             hullModSpec.getTags().remove(SHOULD_BE_HIDDEN);
+        }
+        // fix HiddenEverywhere
+        if (hullModSpec.hasTag(SHOULD_BE_HIDDEN_EVERYWHERE)) {
+            hullModSpec.setHiddenEverywhere(true);
+            hullModSpec.getTags().remove(SHOULD_BE_HIDDEN_EVERYWHERE);
         }
         // fix dmod tag
         if (hullModSpec.hasTag(SHOULD_BE_DMOD)) {
@@ -396,6 +398,10 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         if (opCostTag != null) {
             hullModSpec.getTags().remove(opCostTag);
         }
+    }
+
+    public static void restoreHullMod(String hullModId) {
+        restoreHullMod(Global.getSettings().getHullModSpec(hullModId));
     }
 
     public String getOtherModsInCategory(ShipAPI ship, String currMod, String category) {

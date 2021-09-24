@@ -4,5 +4,6 @@
         "gachaConflict": "Incompatible with ",
         "randomInapplicable": "Ship is at the s-mod limit",
         "removeInapplicable": "Ship has no s-mods",
+		"sectionHeading": "Blink and you'll miss me",
     }
 }
