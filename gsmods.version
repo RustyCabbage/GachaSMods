@@ -1,12 +1,12 @@
 {
     "masterVersionFile":"https://raw.githubusercontent.com/RustyCabbage/Gacha-S-Mods/main/gsmods.version",
     "modName":"Gacha S-Mods",
-    "modThreadId":"",
+    "modThreadId":"22744",
     "modNexusId":"",
     "modVersion":
     {
         "major":1,
         "minor":2,
-        "patch":"0"
+        "patch":"1"
     }
 }
