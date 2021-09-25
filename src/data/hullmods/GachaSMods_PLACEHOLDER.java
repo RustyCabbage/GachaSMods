@@ -30,6 +30,8 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
         }
     }
 
+    // just having a little fun, dunno what else to do with these things
+    // I think it's possible to pick the same tip, unfortunately, but c'est la vie it's not worth trying to fix
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
         String SECTION_HEADING = getString("sectionHeading");
@@ -37,7 +39,6 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
         String STARSECTOR_CORE = "starsector-core";
         float PAD = 5f;
         try {
-
             JSONObject tips = Global.getSettings().getMergedJSONForMod(TIPS_PATH, STARSECTOR_CORE);
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
             JSONArray array = tips.getJSONArray("tips");
@@ -51,7 +52,7 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
                 } else if (array.get(i) instanceof String) {
                     tip = array.getString(i);
                 }
-                if (tip != null) {
+                if (tip != null && freq > 0) {
                     picker.add(tip, freq);
                 }
             }

@@ -6,7 +6,6 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.apache.log4j.Logger;
@@ -25,7 +24,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     private final String HULLMOD_CONFLICT = getString("gachaConflict");
     private final String NO_SMODS = getString("removeInapplicable"); // "Ship is at the built-in hullmod limit"
-    private final int MAX_REMOVABLE_SMODS = 3;
+    private final static int MAX_REMOVABLE_SMODS = 3;
 
     // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
@@ -54,6 +53,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 String seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
                 long savedSeed = getSeed(ship, seedKey);
                 random = new Random(savedSeed);
+                //log.info("Loaded seed" + savedSeed);
             }
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
             variant.removePermaMod(spec.getId());
@@ -158,16 +158,5 @@ public class GachaSMods_removeSMods extends BaseHullMod {
     @Override
     public Color getNameColor() {
         return Misc.getHighlightColor();
-    }
-
-    public String getOtherModsInCategory(ShipAPI ship, String currMod, String category) {
-        String otherMods = null;
-        for (String id : ship.getVariant().getHullMods()) {
-            HullModSpecAPI mod = Global.getSettings().getHullModSpec(id);
-            if (!mod.hasTag(category)) continue;
-            if (id.equals(currMod)) continue;
-            otherMods = otherMods == null ? mod.getDisplayName() : otherMods + ", " + mod.getDisplayName(); //todo externalize?
-        }
-        return otherMods;
     }
 }

@@ -68,9 +68,11 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             tempSeedKey = TEMP_SEED + "_" + ship.getFleetMemberId();
             if (Global.getSector().getPersistentData().get(loadKey) == null) {
                 Global.getSector().getPersistentData().put(loadKey, true);
+                //log.info("initializing load key");
             }
             if (Global.getSector().getPersistentData().get(tempSeedKey) == null) {
                 Global.getSector().getPersistentData().put(tempSeedKey, tempSeed);
+                //log.info("initializing seed key");
             }
         }
 
@@ -88,6 +90,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 shouldLoadSeed = (boolean) Global.getSector().getPersistentData().get(loadKey);
                 if (shouldLoadSeed) {
                     tempSeed = savedSeed;
+                    //log.info("Loaded seed " + tempSeed);
                     Global.getSector().getPersistentData().put(loadKey, false);
                 } else {
                     tempSeed = (long) Global.getSector().getPersistentData().get(tempSeedKey);
@@ -95,6 +98,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 random = new Random(tempSeed); // create new random based on the temp seed. it will either be the saved seed or the continued temp seed chain
                 tempSeed = random.nextLong(); // shuffles to the next long every time the hullmod is s-modded.
                 Global.getSector().getPersistentData().put(tempSeedKey, tempSeed); // save to continue the chain
+                //log.info("Next seed " + tempSeed);
             }
 
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
@@ -137,9 +141,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // will usually do nothing, exceptions being when it has been s-modded / s-modding has been cancelled
         // had to be done because the confirmation screen also fires this script
         // meaning weird stuff would happen when you cancel the s-modding process
-        if (variant.getNonBuiltInHullmods().contains(spec.getId())) { //todo: probably safe to remove but commenting out just in case
-            // in the case that the player cancels the s-mod process, the potential s-mods will become regular mods
-            // which must be removed
+        if (variant.getNonBuiltInHullmods().contains(spec.getId())) {
+            // in the case that the player cancels the s-mod process
+            // the potential s-mods will become regular mods which must be removed
             if (!Collections.disjoint(variant.getNonBuiltInHullmods(), addedMods)) {
                 //log.info("S-modding cancelled");
                 for (String addedModId : addedMods) {
@@ -242,7 +246,8 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     }
 
     // todo: add weights or something, that'd be pretty pog
-    // like inverse of their OP, so you'd have a 4x better chance of getting expanded mags than heavy armor for capital ships
+    // // like inverse of their OP, so you'd have a 4x better chance of getting expanded mags than heavy armor for capital ships
+    // // and then you could customize weights in a .json or something, would allow for interesting randomizer setups
     public String getRandomHullmod(ShipAPI ship, Random random, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
         ShipVariantAPI variant = ship.getVariant();
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
@@ -282,6 +287,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         continue;
                     }
                     // todo: i'll probably make a proper blacklisting system later but lazy for now
+                    // // json array of hullmod Ids, iterate through and check if it matches or something Idk
                     // Vast Bulk is blocked because it doesn't actually explode your ship on deploy, just turns off the AI and makes it invincible.
                     if (hullmodId.equals(HullMods.VASTBULK)) {
                         continue;
@@ -404,7 +410,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         restoreHullMod(Global.getSettings().getHullModSpec(hullModId));
     }
 
-    public String getOtherModsInCategory(ShipAPI ship, String currMod, String category) {
+    // method used to check for incompatibilities
+    // look at this poggers ternary operator
+    public static String getOtherModsInCategory(ShipAPI ship, String currMod, String category) {
         String otherMods = null;
         for (String id : ship.getVariant().getHullMods()) {
             HullModSpecAPI mod = Global.getSettings().getHullModSpec(id);
@@ -414,91 +422,4 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         }
         return otherMods;
     }
-
-    // old and deprecated stuff that I don't wanna delete in case I have to look them up again :)
-
-    // todo: maybe I should make this an option? lotsa work for pretty mediocre gain
-    // same method as above but with an additional thing for
-    // fixing d-mods looking like s-mods
-    // it's not perfect because it won't swap to be a d-mod until swap away from and back to the ship
-    // which makes me think it's kinda just not worth doing...
-    // so commenting it out. learning you can restore s-mod d-mods can be a fun easter egg
-    /* needs a stupid comment on this line so intellij doesn't spaz out at me
-    public static void restoreHullMod(HullModSpecAPI hullModSpec, ShipAPI ship) {
-        // fix hidden
-        if (hullModSpec.hasTag(SHOULD_BE_HIDDEN)) {
-            hullModSpec.setHidden(true);
-            hullModSpec.getTags().remove(SHOULD_BE_HIDDEN);
-        }
-        // fix dmod tag
-        if (hullModSpec.hasTag(SHOULD_BE_DMOD)) {
-            hullModSpec.addTag(Tags.HULLMOD_DMOD);
-            hullModSpec.getTags().remove(SHOULD_BE_DMOD);
-        }
-        // fix OP costs
-        String opCostTag = null;
-        for (String tag : hullModSpec.getTags()) {
-            //(tag + ": " + tag.matches(OP_COST_REGEX));
-            if (tag.matches(OP_COST_REGEX)) {
-                opCostTag = tag;
-                String hullSize = tag.split("_")[1];
-                int opCost = Integer.parseInt(tag.split("_")[2]);
-                switch (hullSize) {
-                    case FRIGATE_CODE:
-                        hullModSpec.setFrigateCost(opCost);
-                        break;
-                    case DESTROYER_CODE:
-                        hullModSpec.setDestroyerCost(opCost);
-                        break;
-                    case CRUISER_CODE:
-                        hullModSpec.setCruiserCost(opCost);
-                        break;
-                    case CAPITAL_SHIP_CODE:
-                        hullModSpec.setCapitalCost(opCost);
-                        break;
-                    default:
-                        break; // do nothing
-                }
-                break;
-            }
-        }
-        if (opCostTag != null) {
-            hullModSpec.getTags().remove(opCostTag);
-        }
-        if (ship != null && hullModSpec.hasTag(Tags.HULLMOD_DMOD)) {
-            if (ship.getVariant().getSMods().contains(hullModSpec.getId())) {
-                ship.getVariant().removePermaMod(hullModSpec.getId());
-                ship.getVariant().addPermaMod(hullModSpec.getId(), false);
-                //log.info("swapping " + hullModSpec.getId() + " to dmod");
-            }
-        }
-    }
-    */
-
-    /* I don't need this pog
-    public static SeedData getSeedData(ShipAPI ship) {
-        String key = DATA_KEY + "_" + ship.getFleetMemberId();
-        SeedData seedData = (SeedData) Global.getSector().getPersistentData().get(key);
-        if (seedData == null) {
-            seedData = new SeedData();
-            Global.getSector().getPersistentData().put(key, seedData);
-            if (Global.getSector().getSeedString() != null) {
-                seedData.sectorHash = Global.getSector().getSeedString().hashCode();
-            }
-            if (ship.getFleetMemberId() != null) {
-                seedData.shipHash = ship.getFleetMemberId().hashCode();
-            }
-            if (seedData.sectorHash * seedData.shipHash != 1) {
-                seedData.seed = (long) seedData.sectorHash * seedData.shipHash;
-            }
-        }
-        return seedData;
-    }
-
-    public static class SeedData {
-        long seed = new Random().nextLong();
-        int sectorHash = 1;
-        int shipHash = 1;
-    }
-    */
 }
