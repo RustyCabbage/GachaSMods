@@ -5,7 +5,7 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 ## Okay fine, a more concrete explanation:
 - Creates two dummy 0 cost hullmods:
   1. {Random S-Mod}: When built into the ship, adds a random hullmod as an s-mod. No effect otherwise.
-  2. {Remove S-Mod}: When built into the ship, removes a random number of s-mods (up to 3). Story points are not refunded. No effect otherwise.
+  2. {Remove S-Mod}: When built into the ship, removes a random number of s-mods (default up to 3; configurable). Story points are not refunded. No effect otherwise.
 - Blocks building in all other hullmods by default. So if you want s-mods, they have to be randomized.
 - Customization options available in data/settings/json.
 
@@ -20,3 +20,8 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 - Only Known Hullmods: will only roll hullmods known by the player (off by default because then why would you learn Shield Shunt/High Scatter Amp
 - Only Not Hidden Hullmods: will only roll hullmods that can be learned by the player (the usual modular ones)
 - Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
+- Disable Random S-Mods: hides the Random S-Mod hullmod and allows regular s-modding
+- Disable Remove S-Mods: as god intended
+- Allow Standard S-Mods: allows regular s-modding
+- Min Removed S-Mods: Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward)
+- Max Removed S-Mods: Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in

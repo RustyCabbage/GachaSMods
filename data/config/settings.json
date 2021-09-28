@@ -39,7 +39,7 @@
 
 	"GachaSMods_minRemovedSMods": 1,
 	# Integer. Default `1`. Min 0. Max 10.
-	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in. Set it to 0 or you're a coward.
+	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in. Set it to 0, coward.
 	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
 
 	"GachaSMods_maxRemovedSMods": 3,
