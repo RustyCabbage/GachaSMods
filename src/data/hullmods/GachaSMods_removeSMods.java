@@ -24,7 +24,6 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     private final String HULLMOD_CONFLICT = getString("gachaConflict");
     private final String NO_SMODS = getString("removeInapplicable"); // "Ship is at the built-in hullmod limit"
-    private final static int MAX_REMOVABLE_SMODS = 3;
 
     // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
@@ -34,8 +33,6 @@ public class GachaSMods_removeSMods extends BaseHullMod {
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
 
-        // if at 1 s mod and max 2, we need max to stay at 2 after beginning s-modding
-        // if at 2 s-mods and max 2, we need max to increase to 3
         if ((ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship)
                 && !ship.getVariant().hasHullMod(PLACEHOLDER_ID + "0"))
                 || ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
@@ -45,15 +42,22 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
         Random random = new Random();
+        String seedKey = null;
+        long savedSeed;
+        int minSModsToRemove = boundMinMaxSModsToRemove(Global.getSettings().getInt(MIN_REMOVED_SMODS));
+        int maxSModsToRemove = Math.max(minSModsToRemove, boundMinMaxSModsToRemove(Global.getSettings().getInt(MAX_REMOVED_SMODS)));
+
+        if (ship.getFleetMemberId() != null) {
+            seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
+        }
 
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
             // anti-save scum stuff
-            if (ship.getFleetMemberId() != null && Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
-                String seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
-                long savedSeed = getSeed(ship, seedKey);
+            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+                savedSeed = getSeed(ship, seedKey);
                 random = new Random(savedSeed);
-                //log.info("Loaded seed" + savedSeed);
+                //log.info("Loaded seed " + savedSeed);
             }
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
             variant.removePermaMod(spec.getId());
@@ -61,15 +65,26 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             // also I don't make it a non-s-mod perma-mod because then you can't s-mod multiple times in a row
             variant.addMod(spec.getId());
 
-            log.info("Removing s-mods...");
-            int numSMods = variant.getSMods().size();
+            //log.info("Removing s-mods...");
+            // the picker is still pseudo-random (random but I think predictable periodic cycle of (numSMods choose sModsToRemove))
+            // under no save-scumming rules because when cancelling it changes the order of the s-mods
+            // fixing that means adding like a TreeMap comparator thing for sorting before picking?
+            // todo: fuck.
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-            picker.addAll(variant.getSMods());
+            // need to not add placeholders into the picker if repeated s-mod removal is done
+            for (String sMod : variant.getSMods()) {
+                if (!sMod.startsWith(MOD_ID)) {
+                    picker.add(sMod);
+                }
+            }
 
-            // min 1 because I don't hate you all that much (can't say I won't change my mind)
-            // max 3 because I don't love you all that much (and I don't hate myself that much)
-            // todo: make this adjustable
-            int numSModsToRemove = 1 + random.nextInt(Math.min(MAX_REMOVABLE_SMODS, numSMods));
+            // remove at least min(numSMods, minSModsToRemove from settings)
+            // remove at most min(numSMods, maxSModsToRemove from settings)
+            // I think I added like four fail-safes here, so it's super redundant but oh well
+            int tempMin = Math.min(minSModsToRemove, picker.getItems().size());
+            int tempMax = Math.max(tempMin, Math.min(maxSModsToRemove, picker.getItems().size()));
+            //log.info("tempMin: " + tempMin + ", tempMax: " + tempMax);
+            int numSModsToRemove = tempMin + random.nextInt(Math.max(1, tempMax - tempMin + 1));
             log.info("Removing " + numSModsToRemove + " s-mods");
             for (int i = 1; i <= numSModsToRemove; i++) {
                 String pickId = picker.pick(random);
@@ -99,13 +114,13 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // in the case that the player cancels the s-mod process, re-add the removed hullmods
         if (variant.getNonBuiltInHullmods().contains(spec.getId())) {
             if (variant.getNonBuiltInHullmods().contains(PLACEHOLDER_ID + "0")) {
-                log.info("Cancelled s-mod removal");
+                //log.info("Cancelled s-mod removal");
                 for (String removedModId : removedMods) {
                     variant.addPermaMod(removedModId, true);
-                    log.info("Re-added " + removedModId);
+                    //log.info("Re-added " + removedModId);
                 }
 
-                for (int i = 0; i <= MAX_REMOVABLE_SMODS; i++) {
+                for (int i = 0; i <= maxSModsToRemove; i++) {
                     if (variant.hasHullMod(PLACEHOLDER_ID + i)) {
                         variant.removeMod(PLACEHOLDER_ID + i);
                         restoreHullMod(PLACEHOLDER_ID + i);
@@ -116,19 +131,27 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
             // check confirmation by number of story points
+            // todo: there's an annoying case where you can have 0 s-mods left but the hullmod is still equipped and you can s-mod it
+            // todo: probably the best way to deal with that is to try to remove it in the PLACEHOLDER script if no non-placeholder s-mods are detected
+            // for now though, fuck the pl*yers if you do this you lose your story point for nothing
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
-                log.info("Confirmed s-mod removal");
+                //log.info("Confirmed s-mod removal");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
 
                 // it gets removed upon switching away to another ship, but will remain with any action that checks the variant
                 // (i.e. anything that isn't swapping to another ship or leaving the refit screen)
                 // it's very necessary to remove this mod for save compatibility, so we'll do our best
-                for (int i = 0; i <= MAX_REMOVABLE_SMODS; i++) {
+                for (int i = 0; i <= maxSModsToRemove; i++) {
                     variant.removePermaMod(PLACEHOLDER_ID + i);
                     restoreHullMod(PLACEHOLDER_ID + i);
                 }
                 removedMods.clear();
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
+
+                // update the seed. we need this because you can undergo the removal process multiple times in a row
+                // I don't actually know if this is necessary because changing the number of s-mods will change the picker and stuff but just in case
+                savedSeed = random.nextLong();
+                Global.getSector().getPersistentData().put(seedKey, savedSeed);
             }
         }
     }
@@ -158,5 +181,15 @@ public class GachaSMods_removeSMods extends BaseHullMod {
     @Override
     public Color getNameColor() {
         return Misc.getHighlightColor();
+    }
+
+    // hard limits 'cuz setting it dynamically would be very annoying
+    public int boundMinMaxSModsToRemove(int minOrMaxSModsToRemove) {
+        if (minOrMaxSModsToRemove < 0) {
+            minOrMaxSModsToRemove = 0;
+        } else if (minOrMaxSModsToRemove > 10) {
+            minOrMaxSModsToRemove = 10;
+        }
+        return minOrMaxSModsToRemove;
     }
 }

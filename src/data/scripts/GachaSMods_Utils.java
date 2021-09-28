@@ -16,6 +16,11 @@ public class GachaSMods_Utils {
     public static final String ONLY_KNOWN_HULLMODS_SETTING = MOD_ID + "_" + "onlyKnownHullmods";
     public static final String ONLY_NOT_HIDDEN_HULLMODS_SETTING = MOD_ID + "_" + "onlyNotHiddenHullmods";
     public static final String ONLY_APPLICABLE_HULLMODS_SETTING = MOD_ID + "_" + "onlyApplicableHullmods";
+    public static final String DISABLE_RANDOM_SMODS = MOD_ID + "_" + "disableRandomSMods";
+    public static final String DISABLE_REMOVE_SMODS = MOD_ID + "_" + "disableRemoveSMods";
+    public static final String ALLOW_STANDARD_SMODS = MOD_ID + "_" + "allowStandardSMods";
+    public static final String MIN_REMOVED_SMODS = MOD_ID + "_" + "minRemovedSMods";
+    public static final String MAX_REMOVED_SMODS = MOD_ID + "_" + "maxRemovedSMods";
     // hullmod ids
     public static final String RANDOM_SMOD_ID = MOD_ID + "_" + "randomSMod";
     public static final String REMOVE_SMOD_ID = MOD_ID + "_" + "removeSMods";

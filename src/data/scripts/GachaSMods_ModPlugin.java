@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 
-import static data.scripts.GachaSMods_Utils.MOD_ID;
+import static data.scripts.GachaSMods_Utils.*;
 
 public class GachaSMods_ModPlugin extends BaseModPlugin {
 
@@ -36,11 +36,25 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         */
         // todo: should these hullmods require a spaceport? no Tags.REQUIRES_SPACEPORT so I am too lazy
         // block building in all other hullmods
-        for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
-            if (!hullmod.hasTag(Tags.HULLMOD_NO_BUILD_IN)
-                    && !hullmod.hasTag(MOD_ID)) {
-                hullmod.addTag(Tags.HULLMOD_NO_BUILD_IN);
+        if (!(Global.getSettings().getBoolean(ALLOW_STANDARD_SMODS) || Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS))) {
+            for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
+                if (!hullmod.hasTag(Tags.HULLMOD_NO_BUILD_IN)
+                        && !hullmod.hasTag(MOD_ID)) {
+                    hullmod.addTag(Tags.HULLMOD_NO_BUILD_IN);
+                }
             }
+        }
+        // disables the random s-mods hullmod, which kinda makes this whole mod moot but whatever maybe they just want s-mod removing features
+        if (Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS)) {
+            log.info(RANDOM_SMOD_ID + " disabled");
+            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(true);
+            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(true); // you have to set both hidden and hiddenEverywhere to true, TIL
+        }
+        // disables the remove s-mods hullmod, as god intended
+        if (Global.getSettings().getBoolean(DISABLE_REMOVE_SMODS)) {
+            log.info(REMOVE_SMOD_ID + " disabled");
+            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(true);
+            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(true);
         }
         // remove hullmods from being known by other factions for save compatibility
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
@@ -77,10 +91,15 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             for (SubmarketAPI submarket : market.getSubmarketsCopy()) {
                 for (FleetMemberAPI m : submarket.getCargo().getMothballedShips().getMembersListCopy()) {
+                    ArrayList<String> hullModsToRemoveFromShip = new ArrayList<>();
                     for (String hullModId : m.getVariant().getHullMods()) {
                         if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
-                            m.getVariant().removeMod(hullModId);
+                            hullModsToRemoveFromShip.add(hullModId);
                         }
+                    }
+                    for (String hullModId : hullModsToRemoveFromShip) {
+                        m.getVariant().removeMod(hullModId);
+                        m.getVariant().removePermaMod(hullModId);
                     }
                 }
             }
@@ -89,11 +108,15 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         for (LocationAPI loc : Global.getSector().getAllLocations()) {
             for (CampaignFleetAPI f : loc.getFleets()) {
                 for (FleetMemberAPI m : f.getFleetData().getMembersListCopy()) {
+                    ArrayList<String> hullModsToRemoveFromShip = new ArrayList<>();
                     for (String hullModId : m.getVariant().getHullMods()) {
                         if (Global.getSettings().getHullModSpec(hullModId).getId().startsWith(MOD_ID)) {
-                            m.getVariant().removeMod(hullModId);
-                            m.getVariant().removePermaMod(hullModId);
+                            hullModsToRemoveFromShip.add(hullModId);
                         }
+                    }
+                    for (String hullModId : hullModsToRemoveFromShip) {
+                        m.getVariant().removeMod(hullModId);
+                        m.getVariant().removePermaMod(hullModId);
                     }
                 }
             }

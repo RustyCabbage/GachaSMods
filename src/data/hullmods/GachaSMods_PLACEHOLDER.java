@@ -63,4 +63,9 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
             log.error("Could not load " + TIPS_PATH);
         }
     }
+
+    @Override
+    public boolean isApplicableToShip(ShipAPI ship) {
+        return false;
+    }
 }
