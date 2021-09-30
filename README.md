@@ -30,7 +30,7 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 - Only Known Hullmods: will only roll hullmods known by the player (off by default because then why would you learn Shield Shunt/High Scatter Amp
 - Only Not Hidden Hullmods: will only roll hullmods that can be learned by the player (the usual modular ones)
 - Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
-- Blacklisted Hullmods: Want to not roll specific hullmods? Add their hullmod id here.
+- Blacklisted Hullmods: Want to not roll specific hullmods? Add their hullmod IDs here.
 ### Selection Mode Options
 - Adjust the rarity of free and hidden hullmods in Proportional Mode.
 - Adjust the weights for the different categories in True Gacha Mode, and what counts as a "cheap" hullmod.
