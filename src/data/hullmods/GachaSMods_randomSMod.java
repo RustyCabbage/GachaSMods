@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Random;
 
 import static data.scripts.GachaSMods_Utils.*;
@@ -52,6 +53,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
+        Map<String, Object> saveData = Global.getSector().getPersistentData();
         String seedKey = null;
         String loadKey = null;
         String tempSeedKey = null;
@@ -66,13 +68,15 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
             loadKey = SHOULD_LOAD_SEED + "_" + ship.getFleetMemberId();
             tempSeedKey = TEMP_SEED + "_" + ship.getFleetMemberId();
-            if (Global.getSector().getPersistentData().get(loadKey) == null) {
-                Global.getSector().getPersistentData().put(loadKey, true);
+            if (saveData.get(loadKey) == null) {
+                saveData.put(loadKey, true);
                 //log.info("initializing load key");
             }
-            if (Global.getSector().getPersistentData().get(tempSeedKey) == null) {
-                Global.getSector().getPersistentData().put(tempSeedKey, tempSeed);
+            if (saveData.get(tempSeedKey) == null) {
+                saveData.put(tempSeedKey, tempSeed);
                 //log.info("initializing seed key");
+            } else if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+                tempSeed = (long) saveData.get(tempSeedKey); // gotta do this or there are problems when saving the temp seed
             }
         }
 
@@ -87,17 +91,17 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
                 savedSeed = getSeed(ship, seedKey);
                 // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
-                shouldLoadSeed = (boolean) Global.getSector().getPersistentData().get(loadKey);
+                shouldLoadSeed = (boolean) saveData.get(loadKey);
                 if (shouldLoadSeed) {
                     tempSeed = savedSeed;
                     //log.info("Loaded seed " + tempSeed);
-                    Global.getSector().getPersistentData().put(loadKey, false);
+                    saveData.put(loadKey, false);
                 } else {
-                    tempSeed = (long) Global.getSector().getPersistentData().get(tempSeedKey);
+                    tempSeed = (long) saveData.get(tempSeedKey);
                 }
                 random = new Random(tempSeed); // create new random based on the temp seed. it will either be the saved seed or the continued temp seed chain
                 tempSeed = random.nextLong(); // shuffles to the next long every time the hullmod is s-modded.
-                Global.getSector().getPersistentData().put(tempSeedKey, tempSeed); // save to continue the chain
+                saveData.put(tempSeedKey, tempSeed); // save to continue the chain
                 //log.info("Next seed " + tempSeed);
             }
 
@@ -155,7 +159,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
-                Global.getSector().getPersistentData().put(loadKey, true);
+                saveData.put(loadKey, true);
                 //variant.removeMod(spec.getId()); // kind of annoying to have to re-add repeatedly
             }
             // need a way to clear the addedMods list when you confirm. to do so we check that story points were spent on s-modding
@@ -167,8 +171,9 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     //log.info("restoring hullmod");
                 }
                 addedMods.clear();
-                Global.getSector().getPersistentData().put(loadKey, false);
-                Global.getSector().getPersistentData().put(seedKey, tempSeed);
+                saveData.put(loadKey, false);
+                saveData.put(seedKey, tempSeed);
+                //log.info("Saved seed " + tempSeed);
                 // for some reason this doesn't work - gets re-added some point after this step,
                 // and I can't find any way of removing it, like what the heck. RIP
                 // update: it gets removed upon switching away to another ship, but will remain with any action that checks the variant
@@ -268,7 +273,8 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         && !variant.getHullSpec().getBuiltInMods().contains(hullmodId)
                         && !hullmodSpec.getTags().contains(MOD_ID)) {
                     if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
-                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())) {
+                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())
+                            || BLACKLISTED_HULLMODS.contains(hullmodId)) {
                         continue;
                     }
                     picker.add(hullmodId);
@@ -283,13 +289,8 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         && !hullmodSpec.isHiddenEverywhere() // what if shard spawner were an option? nah, taking it out cuz there's too many headaches from it
                         && !hullmodSpec.getTags().contains(MOD_ID)) {
                     if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
-                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())) {
-                        continue;
-                    }
-                    // todo: i'll probably make a proper blacklisting system later but lazy for now
-                    // // json array of hullmod Ids, iterate through and check if it matches or something Idk
-                    // Vast Bulk is blocked because it doesn't actually explode your ship on deploy, just turns off the AI and makes it invincible.
-                    if (hullmodId.equals(HullMods.VASTBULK)) {
+                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())
+                            || BLACKLISTED_HULLMODS.contains(hullmodId)) {
                         continue;
                     }
                     picker.add(hullmodSpec.getId());
@@ -418,7 +419,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             HullModSpecAPI mod = Global.getSettings().getHullModSpec(id);
             if (!mod.hasTag(category)) continue;
             if (id.equals(currMod)) continue;
-            otherMods = otherMods == null ? mod.getDisplayName() : otherMods + ", " + mod.getDisplayName(); //todo externalize?
+            otherMods = otherMods == null ? mod.getDisplayName() : otherMods + ", " + mod.getDisplayName();
         }
         return otherMods;
     }

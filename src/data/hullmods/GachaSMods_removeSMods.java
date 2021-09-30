@@ -51,6 +51,28 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
         }
 
+        // fix for s-modding being possible when only placeholders are present
+        // key is that it doesn't do anything if there are both placeholders and non-placeholders
+        // since there are cases where it both should and should not be possible to s-mod
+        // e.g. pre-confirmation: no s-modding, post-confirmation with additional hullmods that can be removed: yes
+        if (!variant.getSMods().isEmpty()) {
+            boolean noPlaceholders = true;
+            boolean onlyPlaceholders = true;
+            for (String sModId : variant.getSMods()) {
+                if (sModId.startsWith(PLACEHOLDER_ID)) {
+                    noPlaceholders = false;
+                } else {
+                    onlyPlaceholders = false;
+                }
+            }
+            if (noPlaceholders) {
+                spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
+            }
+            if (onlyPlaceholders) {
+                spec.addTag(Tags.HULLMOD_NO_BUILD_IN);
+            }
+        }
+
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
             // anti-save scum stuff
@@ -66,7 +88,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             variant.addMod(spec.getId());
 
             //log.info("Removing s-mods...");
-            // the picker is still pseudo-random (random but I think predictable periodic cycle of (numSMods choose sModsToRemove))
+            // the picker removes the same number of mods, but which mods exactly may vary after cancelling
             // under no save-scumming rules because when cancelling it changes the order of the s-mods
             // fixing that means adding like a TreeMap comparator thing for sorting before picking?
             // todo: fuck.
@@ -131,9 +153,6 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
             // check confirmation by number of story points
-            // todo: there's an annoying case where you can have 0 s-mods left but the hullmod is still equipped and you can s-mod it
-            // todo: probably the best way to deal with that is to try to remove it in the PLACEHOLDER script if no non-placeholder s-mods are detected
-            // for now though, fuck the pl*yers if you do this you lose your story point for nothing
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
                 //log.info("Confirmed s-mod removal");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();

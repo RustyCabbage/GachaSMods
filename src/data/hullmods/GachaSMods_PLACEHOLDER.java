@@ -68,4 +68,9 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
     public boolean isApplicableToShip(ShipAPI ship) {
         return false;
     }
+
+    @Override
+    public int getDisplaySortOrder() {
+        return -1;
+    }
 }

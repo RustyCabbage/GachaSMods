@@ -1,6 +1,9 @@
 {
 	### NOTE: you have to restart the game in order for any changes to these settings to take effect
-
+	
+	#######################
+###### v important stuff ##
+	#######################
 	"GachaSMods_trueRandomMode": false,
 	# Boolean. Default `false`.
 	# If true, will roll (almost) any hullmod.
@@ -8,21 +11,11 @@
 
 	"GachaSMods_noSaveScumming": true,
 	# Boolean. Default `true`.
-	# If true, ships will roll the same s-mods and bonus xp every time. Unless the in-game re-roll mechanic has been used.
+	# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
 
-	"GachaSMods_onlyKnownHullmods": false,
-	# Boolean. Default `false`.
-	# If true, will only roll hullmods known by the player.
-	
-	"GachaSMods_onlyNotHiddenHullmods": true,
-	# Boolean. Default `true`.
-	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods)
-	
-	"GachaSMods_onlyApplicableHullmods": true,
-	# Boolean. Default `true`.
-	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
-	# May have strange results with hidden hullmods.
-
+	#############################
+###### disable/enable features ##
+	#############################
 	"GachaSMods_disableRandomSMods": false,
 	# Boolean. Default `false`.
 	# If true, hides the Random S-Mod hullmod and allows regular s-modding.
@@ -37,9 +30,34 @@
 	# If true, allows regular s-modding but does not affect the two hullmods added by the mod
 	# Thus allows both randomized s-mods and standard s-modding, and removing s-mods (under default settings).
 
+	##########################
+###### random s-mod options ##
+	##########################
+	"GachaSMods_onlyKnownHullmods": false,
+	# Boolean. Default `false`.
+	# If true, will only roll hullmods known by the player.
+	
+	"GachaSMods_onlyNotHiddenHullmods": true,
+	# Boolean. Default `true`.
+	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods)
+	
+	"GachaSMods_onlyApplicableHullmods": true,
+	# Boolean. Default `true`.
+	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
+	# May have strange results with hidden hullmods.
+
+	"GachaSMods_blacklistedHullmods":[
+		"vastbulk",								# breaks AI and is boring
+		"diableavionics_virtuousMasterHullmod", # crashes
+	],
+	# Please tell me whenever you notice a modded hullmod that causes issues. Thanks bby.
+
+	##########################
+###### remove s-mod options ##
+	##########################
 	"GachaSMods_minRemovedSMods": 1,
 	# Integer. Default `1`. Min 0. Max 10.
-	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in. Set it to 0, coward.
+	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward).
 	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
 
 	"GachaSMods_maxRemovedSMods": 3,

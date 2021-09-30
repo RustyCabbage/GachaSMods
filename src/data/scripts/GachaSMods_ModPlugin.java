@@ -12,6 +12,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -22,7 +24,6 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
     private static final Logger log = Global.getLogger(GachaSMods_ModPlugin.class);
 
     //public static String SETTINGS_JSON = "data/config/settings.json"; // todo: Idk does this need to be externalized?
-    //public static String LOAD_JSON_ERROR = "Could not load " + MOD_ID + "/" + SETTINGS_JSON;
 
     @Override
     public void onGameLoad(boolean newGame) {
@@ -31,10 +32,10 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         try {
             JSONObject settings = Global.getSettings().loadJSON(SETTINGS_JSON, MOD_ID);
         } catch (IOException | JSONException e) {
-            log.error(LOAD_JSON_ERROR);
+            log.error("Could not load " + MOD_ID + "/" + SETTINGS_JSON);
         }
         */
-        // todo: should these hullmods require a spaceport? no Tags.REQUIRES_SPACEPORT so I am too lazy
+        // should these hullmods require a spaceport? no Tags.REQUIRES_SPACEPORT so I am too lazy
         // block building in all other hullmods
         if (!(Global.getSettings().getBoolean(ALLOW_STANDARD_SMODS) || Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS))) {
             for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
@@ -46,15 +47,21 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         }
         // disables the random s-mods hullmod, which kinda makes this whole mod moot but whatever maybe they just want s-mod removing features
         if (Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS)) {
-            log.info(RANDOM_SMOD_ID + " disabled");
+            //log.info(RANDOM_SMOD_ID + " disabled");
             Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(true);
             Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(true); // you have to set both hidden and hiddenEverywhere to true, TIL
+        } else {
+            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(false);
+            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(false);
         }
         // disables the remove s-mods hullmod, as god intended
         if (Global.getSettings().getBoolean(DISABLE_REMOVE_SMODS)) {
-            log.info(REMOVE_SMOD_ID + " disabled");
+            //log.info(REMOVE_SMOD_ID + " disabled");
             Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(true);
             Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(true);
+        } else {
+            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(false);
+            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(false);
         }
         // remove hullmods from being known by other factions for save compatibility
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
@@ -70,6 +77,16 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             for (String hullModId : hullModsToRemove) {
                 faction.removeKnownHullMod(hullModId);
             }
+        }
+        // load blacklisted hullmods
+        try {
+            JSONArray array = Global.getSettings().getJSONArray(BLACKLISTED_HULLMODS_ARRAY);
+            for (int i = 0; i < array.length(); i++) {
+                BLACKLISTED_HULLMODS.add((String) array.get(i));
+            }
+            //log.info("Blacklisted hullmods: " + BLACKLISTED_HULLMODS);
+        } catch (JSONException e) {
+            log.error("Could not load " + BLACKLISTED_HULLMODS_ARRAY);
         }
     }
 
@@ -93,7 +110,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
                 for (FleetMemberAPI m : submarket.getCargo().getMothballedShips().getMembersListCopy()) {
                     ArrayList<String> hullModsToRemoveFromShip = new ArrayList<>();
                     for (String hullModId : m.getVariant().getHullMods()) {
-                        if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
+                        if (Global.getSettings().getHullModSpec(hullModId).getId().startsWith(MOD_ID)) {
                             hullModsToRemoveFromShip.add(hullModId);
                         }
                     }
