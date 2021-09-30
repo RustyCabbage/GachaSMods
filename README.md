@@ -17,11 +17,11 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 ## Options (found in settings.json)
 - True Random Mode: will randomly choose (almost) any non-hiddenEverywhere hullmod for s-modding. (Maybe you get Targeting Supercomputer, maybe you get Axial Rotation, thems the works.)
 - No Save Scumming: ships will roll the same s-mods and bonus xp every time.
-- Only Known Hullmods: will only roll hullmods known by the player (off by default because then why would you learn Shield Shunt/High Scatter Amp
-- Only Not Hidden Hullmods: will only roll hullmods that can be learned by the player (the usual modular ones)
-- Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
 - Disable Random S-Mods: hides the Random S-Mod hullmod and allows regular s-modding
 - Disable Remove S-Mods: as god intended
 - Allow Standard S-Mods: allows regular s-modding
+- Only Known Hullmods: will only roll hullmods known by the player (off by default because then why would you learn Shield Shunt/High Scatter Amp
+- Only Not Hidden Hullmods: will only roll hullmods that can be learned by the player (the usual modular ones)
+- Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
 - Min Removed S-Mods: Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward)
 - Max Removed S-Mods: Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in
