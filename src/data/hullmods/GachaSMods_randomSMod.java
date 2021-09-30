@@ -2,21 +2,21 @@ package data.hullmods;
 
 import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static data.scripts.GachaSMods_Utils.*;
 
@@ -54,6 +54,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
         Map<String, Object> saveData = Global.getSector().getPersistentData();
+        SettingsAPI settings = Global.getSettings();
         String seedKey = null;
         String loadKey = null;
         String tempSeedKey = null;
@@ -75,7 +76,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             if (saveData.get(tempSeedKey) == null) {
                 saveData.put(tempSeedKey, tempSeed);
                 //log.info("initializing seed key");
-            } else if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+            } else if (settings.getBoolean(NO_SAVE_SCUMMING)) {
                 tempSeed = (long) saveData.get(tempSeedKey); // gotta do this or there are problems when saving the temp seed
             }
         }
@@ -88,7 +89,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // 2. s-modding one at a time has the same effect as s-modding everything at once
             // 3. s-modding is consistent when taking the hullmod on/off and stuff
             //    (so it can only update when in the process of s-modding so there's a bunch of ugly initialization stuff)
-            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+            if (settings.getBoolean(NO_SAVE_SCUMMING)) {
                 savedSeed = getSeed(ship, seedKey);
                 // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
                 shouldLoadSeed = (boolean) saveData.get(loadKey);
@@ -113,15 +114,21 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
             // choose the hullmod to s-mod
             String chosenSModId;
-            if (ship.getName().equalsIgnoreCase(RANDOM_OVERRIDE) || Global.getSettings().getBoolean(TRUE_RANDOM_SETTING)) {
+            if (ship.getName().equalsIgnoreCase(RANDOM_OVERRIDE) || settings.getBoolean(TRUE_RANDOM)) {
+                //log.info("Using true random picker");
                 random = new Random();
-                chosenSModId = getRandomHullmod(ship, random, false, false, false);
+                WeightedRandomPicker<String> picker = populatePicker(settings.getString(SELECTION_MODE), random, ship,
+                        false, false, false);
+                chosenSModId = picker.pick(random);
             } else {
-                boolean onlyKnownHullMods = Global.getSettings().getBoolean(ONLY_KNOWN_HULLMODS_SETTING);
-                boolean onlyNotHiddenHullmods = Global.getSettings().getBoolean(ONLY_NOT_HIDDEN_HULLMODS_SETTING);
-                boolean onlyApplicableHullmods = Global.getSettings().getBoolean(ONLY_APPLICABLE_HULLMODS_SETTING);
-                chosenSModId = getRandomHullmod(ship, random, onlyKnownHullMods, onlyNotHiddenHullmods, onlyApplicableHullmods);
+                boolean onlyKnownHullMods = settings.getBoolean(ONLY_KNOWN_HULLMODS);
+                boolean onlyNotHiddenHullmods = settings.getBoolean(ONLY_NOT_HIDDEN_HULLMODS);
+                boolean onlyApplicableHullmods = settings.getBoolean(ONLY_APPLICABLE_HULLMODS);
+                WeightedRandomPicker<String> picker = populatePicker(settings.getString(SELECTION_MODE), random, ship,
+                        onlyKnownHullMods, onlyNotHiddenHullmods, onlyApplicableHullmods);
+                chosenSModId = picker.pick(random);
             }
+            log.info("Picked " + chosenSModId);
             // if nothing is available for some reason...
             if (chosenSModId == null) {
                 //return;
@@ -228,6 +235,52 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         return Misc.getHighlightColor();
     }
 
+    @Override
+    public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
+        float PAD = 10f;
+        boolean onlyNotHiddenHullmods = Global.getSettings().getBoolean(ONLY_NOT_HIDDEN_HULLMODS) || Global.getSettings().getBoolean(TRUE_RANDOM);
+        String headingText;
+        String descriptionText;
+        String RARE1_PROB = null;
+        String RARE2_PROB = null;
+        String RARE3_PROB = null;
+        String RARE4_PROB = null;
+        switch (Global.getSettings().getString(SELECTION_MODE)) {
+            case PROPORTIONAL_CODE:
+                headingText = getString("randomPRMode");
+                descriptionText = getString("randomPRDesc");
+                break;
+            case TRUE_GACHA_CODE:
+                headingText = getString("randomTGMode");
+                float RARE1_MULT = Global.getSettings().getFloat(TG_RARE1_MULT);
+                float RARE2_MULT = Global.getSettings().getFloat(TG_RARE2_MULT);
+                float RARE3_MULT = Global.getSettings().getFloat(TG_RARE3_MULT);
+                float RARE4_MULT = Global.getSettings().getFloat(TG_RARE4_MULT);
+                float SUM = (onlyNotHiddenHullmods) ? RARE2_MULT + RARE3_MULT : RARE1_MULT + RARE2_MULT + RARE3_MULT + RARE4_MULT;
+                RARE1_PROB = String.format("%.1f", RARE1_MULT / SUM * 100) + "%";
+                RARE2_PROB = String.format("%.1f", RARE2_MULT / SUM * 100) + "%";
+                RARE3_PROB = String.format("%.1f", RARE3_MULT / SUM * 100) + "%";
+                RARE4_PROB = String.format("%.1f", RARE4_MULT / SUM * 100) + "%";
+                descriptionText = getString("randomTGDesc");
+                break;
+            default: // case CL
+                headingText = getString("randomCLMode");
+                descriptionText = getString("randomCLDesc");
+        }
+        tooltip.addSectionHeading(headingText, Alignment.MID, PAD);
+        if (Global.getSettings().getString(SELECTION_MODE).equals(TRUE_GACHA_CODE)) {
+            if (!onlyNotHiddenHullmods) {
+                tooltip.addPara(getString("randomTGRare1Rate") + "%s", PAD, Misc.getHighlightColor(), RARE1_PROB);
+            }
+            tooltip.addPara(getString("randomTGRare2Rate") + "%s", PAD, Misc.getHighlightColor(), RARE2_PROB);
+            tooltip.addPara(getString("randomTGRare3Rate") + "%s", PAD, Misc.getHighlightColor(), RARE3_PROB);
+            if (!onlyNotHiddenHullmods) {
+                tooltip.addPara(getString("randomTGRare4Rate") + "%s", PAD, Misc.getHighlightColor(), RARE4_PROB);
+            }
+        }
+        tooltip.addPara(descriptionText, PAD);
+    }
+
     // Loads the seed entry for a given ship, or creates it if none exists
     public static long getSeed(ShipAPI ship, String seedKey) {
         long seed = new Random().nextLong();
@@ -248,59 +301,6 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             //log.info("Created seed key entry: " + seed);
         }
         return seed;
-    }
-
-    // todo: add weights or something, that'd be pretty pog
-    // // like inverse of their OP, so you'd have a 4x better chance of getting expanded mags than heavy armor for capital ships
-    // // and then you could customize weights in a .json or something, would allow for interesting randomizer setups
-    public String getRandomHullmod(ShipAPI ship, Random random, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
-        ShipVariantAPI variant = ship.getVariant();
-        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
-        if (random != null) {
-            picker = new WeightedRandomPicker<>(random);
-        }
-        if (onlyKnownHullmods) {
-            // playerFaction.getKnownHullMods() NPEs if done in a mission, so I guess you're stuck with defective manufactory
-            // if you try s-modding this with onlyKnownHullmods = true
-            if (Global.getCurrentState() != GameState.CAMPAIGN) {
-                return null;
-            }
-            for (String hullmodId : Global.getSector().getPlayerFaction().getKnownHullMods()) {
-                HullModSpecAPI hullmodSpec = Global.getSettings().getHullModSpec(hullmodId);
-                // so like I should consider if it's reasonable to only s-mod dock-only mods when actually at a spaceport
-                // I don't want to make it super tedious by making people leave the spaceport for better odds tho
-                if (!variant.getPermaMods().contains(hullmodId)
-                        && !variant.getHullSpec().getBuiltInMods().contains(hullmodId)
-                        && !hullmodSpec.getTags().contains(MOD_ID)) {
-                    if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
-                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())
-                            || BLACKLISTED_HULLMODS.contains(hullmodId)) {
-                        continue;
-                    }
-                    picker.add(hullmodId);
-                    //log.info(hullmodId + " added to picker");
-                }
-            }
-        } else {
-            for (HullModSpecAPI hullmodSpec : Global.getSettings().getAllHullModSpecs()) {
-                String hullmodId = hullmodSpec.getId();
-                if (!variant.getPermaMods().contains(hullmodId)
-                        && !variant.getHullSpec().getBuiltInMods().contains(hullmodId)
-                        && !hullmodSpec.isHiddenEverywhere() // what if shard spawner were an option? nah, taking it out cuz there's too many headaches from it
-                        && !hullmodSpec.getTags().contains(MOD_ID)) {
-                    if ((onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship))
-                            || (onlyNotHiddenHullmods && hullmodSpec.isHidden())
-                            || BLACKLISTED_HULLMODS.contains(hullmodId)) {
-                        continue;
-                    }
-                    picker.add(hullmodSpec.getId());
-                    //log.info(hullmodSpec.getId() + " added to picker");
-                }
-            }
-        }
-        String pick = picker.pick(random);
-        log.info("Picked " + pick);
-        return pick;
     }
 
     // basically if you add a hidden or d-mod the game doesn't know how to remove it in the confirmation screen, so we're fixing that
@@ -329,26 +329,27 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             }
             // random number between 2 (ATG/Expanded Mags) to 10 (ECM/Nav Relay for FFs)
             // if you get Command Center or SO, lucky you!
-            int opCost = (RANDOM_COST_MIN + random.nextInt(RANDOM_COST_MAX + 1 - RANDOM_COST_MIN));
-            //log.info(opCost);
+            int newOPCost = (RANDOM_COST_MIN + random.nextInt(RANDOM_COST_MAX + 1 - RANDOM_COST_MIN));
+            //log.info(newOPCost);
             switch (hullSize) {
                 case FRIGATE:
                     hullModSpec.addTag(MOD_ID + "_" + FRIGATE_CODE + "_" + hullModSpec.getFrigateCost());
-                    hullModSpec.setFrigateCost(opCost);
+                    hullModSpec.setFrigateCost(newOPCost);
                     break;
                 case DESTROYER:
                     hullModSpec.addTag(MOD_ID + "_" + DESTROYER_CODE + "_" + hullModSpec.getDestroyerCost());
-                    hullModSpec.setDestroyerCost(2 * opCost);
+                    hullModSpec.setDestroyerCost(2 * newOPCost);
                     break;
                 case CRUISER:
                     hullModSpec.addTag(MOD_ID + "_" + CRUISER_CODE + "_" + hullModSpec.getCruiserCost());
-                    hullModSpec.setCruiserCost(3 * opCost);
+                    hullModSpec.setCruiserCost(3 * newOPCost);
                     break;
                 case CAPITAL_SHIP:
                     hullModSpec.addTag(MOD_ID + "_" + CAPITAL_SHIP_CODE + "_" + hullModSpec.getCapitalCost());
-                    hullModSpec.setCapitalCost(5 * opCost);
+                    hullModSpec.setCapitalCost(5 * newOPCost);
                     break;
                 case DEFAULT:
+                    log.error("Something broke: opCost for hull size " + hullSize);
                     break; // do nothing
             }
         }
@@ -397,6 +398,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         hullModSpec.setCapitalCost(opCost);
                         break;
                     default:
+                        log.error("Something broke: opCost for hull size " + hullSize);
                         break; // do nothing
                 }
                 break;
@@ -422,5 +424,236 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             otherMods = otherMods == null ? mod.getDisplayName() : otherMods + ", " + mod.getDisplayName();
         }
         return otherMods;
+    }
+
+    public static WeightedRandomPicker<String> populatePicker(String mode, Random random, ShipAPI ship,
+                                                              boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
+        ShipAPI.HullSize hullSize = ship.getHullSize();
+        ArrayList<String> validHullModIds = getValidHullMods(ship, onlyKnownHullmods, onlyNotHiddenHullmods, onlyApplicableHullmods);
+        WeightedRandomPicker<String> picker = (random != null) ? new WeightedRandomPicker<String>(random) : new WeightedRandomPicker<String>();
+        switch (mode) {
+            case PROPORTIONAL_CODE:
+                // PROPORTIONAL
+                // Assigns weight of 1/OP, 1/(20*size) if 0 cost, 1/(OP+20*size) if hidden
+                // e.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150
+                //log.info("Picker Mode: Proportional");
+                int INCR_FOR_FREE_OR_HIDDEN_MODS = Math.max(1, Global.getSettings().getInt(PR_INCR_FOR_FREE_OR_HIDDEN_MODS));
+                for (String hullModId : validHullModIds) {
+                    HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
+                    int opCost = 0;
+                    switch (hullSize) {
+                        case FRIGATE:
+                            opCost = hullModSpec.getFrigateCost();
+                            if (opCost < 1 || hullModSpec.isHidden()) {
+                                opCost = Math.max(INCR_FOR_FREE_OR_HIDDEN_MODS, opCost + INCR_FOR_FREE_OR_HIDDEN_MODS); // in case of bad fractional value
+                            }
+                            break;
+                        case DESTROYER:
+                            opCost = hullModSpec.getDestroyerCost();
+                            if (opCost < 1 || hullModSpec.isHidden()) {
+                                opCost = Math.max(2 * INCR_FOR_FREE_OR_HIDDEN_MODS, opCost + 2 * INCR_FOR_FREE_OR_HIDDEN_MODS); // in case of bad fractional value
+                            }
+                            break;
+                        case CRUISER:
+                            opCost = hullModSpec.getCruiserCost();
+                            if (opCost < 1 || hullModSpec.isHidden()) {
+                                opCost = Math.max(3 * INCR_FOR_FREE_OR_HIDDEN_MODS, opCost + 3 * INCR_FOR_FREE_OR_HIDDEN_MODS); // in case of bad fractional value
+                            }
+                            break;
+                        case CAPITAL_SHIP:
+                            opCost = hullModSpec.getCapitalCost();
+                            if (opCost < 1 || hullModSpec.isHidden()) {
+                                opCost = Math.max(5 * INCR_FOR_FREE_OR_HIDDEN_MODS, opCost + 5 * INCR_FOR_FREE_OR_HIDDEN_MODS); // in case of bad fractional value
+                            }
+                            break;
+                        default:
+                            log.error("Something broke: opCost for hull size " + hullSize);
+                            break;
+                    }
+
+                    float weight = 1.0f / opCost;
+                    picker.add(hullModId, weight);
+                }
+                break;
+            case TRUE_GACHA_CODE:
+                // TRUE GACHA
+                // Assigns weight according to class: dmod (52.5%), cheap(<=3*size OP) (25%), standard (15%), hidden (7.5%)
+                // From my count, in vanilla there are ~21/17/30/27 of each category (for frigates, number changes slightly depending on hull size)
+                // So each dmod has a 2.5% chance of being selected, each cheap has ~1.5% chance, standard has 0.5% chance, hidden has 0.27%
+                // From my count, there are 6 bad hidden, 3 neutral hidden, 18 good hidden, (may vary depending on e.g. phase ship status)
+                // So you have a 5% chance of getting a beneficial hidden hullmod and a 1.67% chance of getting a bad hidden hullmod
+                //log.info("Picker mode: True Gacha");
+                HashMap<String, Integer> hullModRarityMap = new HashMap<>();
+                int numRare1 = 0; // dmods
+                int numRare2 = 0; // cheap
+                int numRare3 = 0; // standard
+                int numRare4 = 0; // hidden
+                for (String hullModId : validHullModIds) {
+                    HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
+                    if (hullModSpec.hasTag(Tags.HULLMOD_DMOD)) {
+                        numRare1++;
+                        hullModRarityMap.put(hullModId, 1);
+                    } else if (hullModSpec.isHidden()) {
+                        numRare4++;
+                        hullModRarityMap.put(hullModId, 4);
+                    } else {
+                        int COST_FOR_RARE2 = Global.getSettings().getInt(TG_COST_FOR_RARE2);
+                        int opCost;
+                        switch (hullSize) {
+                            case FRIGATE:
+                                opCost = hullModSpec.getFrigateCost();
+                                if (opCost <= COST_FOR_RARE2) {
+                                    numRare2++;
+                                    hullModRarityMap.put(hullModId, 2);
+                                } else {
+                                    numRare3++;
+                                    hullModRarityMap.put(hullModId, 3);
+                                }
+                                break;
+                            case DESTROYER:
+                                opCost = hullModSpec.getDestroyerCost();
+                                if (opCost <= 2 * COST_FOR_RARE2) {
+                                    numRare2++;
+                                    hullModRarityMap.put(hullModId, 2);
+                                } else {
+                                    numRare3++;
+                                    hullModRarityMap.put(hullModId, 3);
+                                }
+                                break;
+                            case CRUISER:
+                                opCost = hullModSpec.getCruiserCost();
+                                if (opCost <= 3 * COST_FOR_RARE2) {
+                                    numRare2++;
+                                    hullModRarityMap.put(hullModId, 2);
+                                } else {
+                                    numRare3++;
+                                    hullModRarityMap.put(hullModId, 3);
+                                }
+                                break;
+                            case CAPITAL_SHIP:
+                                opCost = hullModSpec.getCapitalCost();
+                                if (opCost <= 5 * COST_FOR_RARE2) {
+                                    numRare2++;
+                                    hullModRarityMap.put(hullModId, 2);
+                                } else {
+                                    numRare3++;
+                                    hullModRarityMap.put(hullModId, 3);
+                                }
+                                break;
+                            default:
+                                log.error("Something broke: opCost for hull size " + hullSize);
+                                break;
+                        }
+                    }
+                }
+                float RARE1_MULT = Global.getSettings().getFloat(TG_RARE1_MULT);
+                float RARE2_MULT = Global.getSettings().getFloat(TG_RARE2_MULT);
+                float RARE3_MULT = Global.getSettings().getFloat(TG_RARE3_MULT);
+                float RARE4_MULT = Global.getSettings().getFloat(TG_RARE4_MULT);
+                for (Map.Entry<String, Integer> hullModRarityMapEntry : hullModRarityMap.entrySet()) {
+                    switch (hullModRarityMapEntry.getValue()) {
+                        case 1:
+                            picker.add(hullModRarityMapEntry.getKey(), RARE1_MULT / numRare1);
+                            break;
+                        case 2:
+                            picker.add(hullModRarityMapEntry.getKey(), RARE2_MULT / numRare2);
+                            break;
+                        case 3:
+                            picker.add(hullModRarityMapEntry.getKey(), RARE3_MULT / numRare3);
+                            break;
+                        case 4:
+                            picker.add(hullModRarityMapEntry.getKey(), RARE4_MULT / numRare4);
+                            break;
+                        default:
+                            log.error("Something broke: hullModRarityMapEntry.getValue()");
+                            break;
+                    }
+                }
+                break;
+            default: // case "CL"
+                //log.info("Picker Mode: Classic");
+                picker.addAll(validHullModIds);
+        }
+        return picker;
+    }
+
+    public static ArrayList<String> getValidHullMods(ShipAPI ship, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
+        ShipVariantAPI variant = ship.getVariant();
+        ArrayList<String> validHullModIds = new ArrayList<>();
+        if (onlyKnownHullmods && Global.getCurrentState() == GameState.CAMPAIGN) { // playerFaction.getKnownHullMods() NPEs if done in a mission
+            for (String hullmodId : Global.getSector().getPlayerFaction().getKnownHullMods()) {
+                HullModSpecAPI hullmodSpec = Global.getSettings().getHullModSpec(hullmodId);
+                // skip if:
+                if (variant.getPermaMods().contains(hullmodId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
+                        || hullmodId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
+                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                ) {
+                    continue;
+                }
+                validHullModIds.add(hullmodId);
+                //log.info(hullmodId + " added to picker");
+            }
+        } else {
+            for (HullModSpecAPI hullmodSpec : Global.getSettings().getAllHullModSpecs()) {
+                String hullmodId = hullmodSpec.getId();
+                // skip if:
+                if (variant.getPermaMods().contains(hullmodId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
+                        || hullmodId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
+                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                ) {
+                    continue;
+                }
+                validHullModIds.add(hullmodId);
+                //log.info(hullmodId + " added to picker");
+            }
+        }
+        return validHullModIds;
+    }
+
+    @Deprecated
+    // I've edited this a bunch but the new method might be unstable so saving this just in case (and also this is probably faster)
+    public String getRandomHullmod(ShipAPI ship, Random random, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
+        ShipVariantAPI variant = ship.getVariant();
+        WeightedRandomPicker<String> picker = (random != null) ? new WeightedRandomPicker<String>(random) : new WeightedRandomPicker<String>();
+        if (onlyKnownHullmods && Global.getCurrentState() == GameState.CAMPAIGN) { // playerFaction.getKnownHullMods() NPEs if done in a mission
+            for (String hullmodId : Global.getSector().getPlayerFaction().getKnownHullMods()) {
+                HullModSpecAPI hullmodSpec = Global.getSettings().getHullModSpec(hullmodId);
+                // skip if:
+                if (variant.getPermaMods().contains(hullmodId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
+                        || hullmodId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
+                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                ) {
+                    picker.add(hullmodId);
+                    //log.info(hullmodId + " added to picker");
+                }
+            }
+        } else {
+            for (HullModSpecAPI hullmodSpec : Global.getSettings().getAllHullModSpecs()) {
+                String hullmodId = hullmodSpec.getId();
+                // skip if:
+                if (variant.getPermaMods().contains(hullmodId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
+                        || hullmodId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
+                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                ) {
+                    picker.add(hullmodId);
+                    //log.info(hullmodId + " added to picker");
+                }
+            }
+        }
+        String pick = picker.pick(random);
+        log.info("Picked " + pick);
+        return pick;
     }
 }

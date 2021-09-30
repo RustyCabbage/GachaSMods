@@ -4,11 +4,6 @@
 	#######################
 ###### v important stuff ##
 	#######################
-	"GachaSMods_trueRandomMode": false,
-	# Boolean. Default `false`.
-	# If true, will roll (almost) any hullmod.
-	## Note: This supercedes the noSaveScumming and onlyXHullmods settings and is equivalent to setting them to false.
-
 	"GachaSMods_noSaveScumming": true,
 	# Boolean. Default `true`.
 	# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
@@ -19,7 +14,7 @@
 	"GachaSMods_disableRandomSMods": false,
 	# Boolean. Default `false`.
 	# If true, hides the Random S-Mod hullmod and allows regular s-modding.
-	## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true. (fun as it would be to block s-modding entirely :V)
+	## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true (fun as it would be to block s-modding entirely :V).
 	
 	"GachaSMods_disableRemoveSMods": false,
 	# Boolean. Default `false`.
@@ -27,19 +22,34 @@
 
 	"GachaSMods_allowStandardSMods": false,
 	# Boolean. Default `false`.
-	# If true, allows regular s-modding but does not affect the two hullmods added by the mod
+	# If true, allows regular s-modding but does not affect the two hullmods added by the mod.
 	# Thus allows both randomized s-mods and standard s-modding, and removing s-mods (under default settings).
 
 	##########################
 ###### random s-mod options ##
 	##########################
+	"GachaSMods_selectionMode": "CL",
+	# String. Default "CL".
+	###  MODES: 
+	# "CL": Classic - Hullmods are selected with uniform probability of selection.
+	# "PR": Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
+	# "TG": True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
+	###
+	# Must be spelt correctly, or you're stuck with Classic mode.
+	# You can adjust the Proportional and True Gacha settings further down under 'selection mode options'
+
+	"GachaSMods_trueRandomMode": false,
+	# Boolean. Default `false`.
+	# If true, it will be possible to roll (almost) any hullmod. Weights will still follow the selection mode chosen above.
+	## Note: This supercedes the noSaveScumming and onlyXHullmods settings and is equivalent to setting them to false.
+
 	"GachaSMods_onlyKnownHullmods": false,
 	# Boolean. Default `false`.
 	# If true, will only roll hullmods known by the player.
 	
 	"GachaSMods_onlyNotHiddenHullmods": true,
 	# Boolean. Default `true`.
-	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods)
+	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
 	
 	"GachaSMods_onlyApplicableHullmods": true,
 	# Boolean. Default `true`.
@@ -50,7 +60,37 @@
 		"vastbulk",								# breaks AI and is boring
 		"diableavionics_virtuousMasterHullmod", # crashes
 	],
-	# Please tell me whenever you notice a modded hullmod that causes issues. Thanks bby.
+	# Please tell me whenever you notice a modded hullmod that causes issues and I'll update the list.
+
+	############################
+###### selection mode options ##
+	############################
+	"GachaSMods_PR_incrForFreeOrHiddenMods": 20,
+	# Integer. Default `20`. Min 1.
+	# In Proportional mode, for free or hidden hullmods, this value is added to their OP cost (adjusted for size: (1/2/3/5x)) to determine their weight.
+	# E.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150 under default settings.
+
+	"GachaSMods_TG_costForRare2": 3,
+	# Integer. Default `3`.
+	# In True Gacha mode, for a given non-dmod and non-hidden hullmod, if the OP cost < this value (adjusted for size: (1/2/3/5x)), it is placed in RARE2, else RARE3.
+
+	"GachaSMods_TG_rare1Mult": 52.5,
+	# Float. Default `52.5`.
+	# Multiplier for d-mods. Under vanilla & default settings, each d-mod has a 2.5% chance of selection.
+
+	"GachaSMods_TG_rare2Mult": 25,
+	# Float. Default `25`.
+	# Multiplier for cheap hullmods. Under vanilla & default settings, each cheap hullmod has a ~1.5% chance of selection.
+
+	"GachaSMods_TG_rare3Mult": 15,
+	# Float. Default `15`.
+	# Multiplier for standard cost hullmods. Under vanilla & default settings, each standard hullmod has a ~0.5% chance of selection.
+
+	"GachaSMods_TG_rare4Mult": 7.5,
+	# Float. Default `7.5`.
+	# Multiplier for hidden hullmods.
+	# Under vanilla & default settings, from my count, there are 6 bad, 3 neutral, and 18 good hidden hullmods (may vary depending on e.g. phase ship status).
+	# Hence, you have a 5% chance of getting a beneficial hullmod and a 1.67% chance of getting a bad hidden hullmod (each one has a 0.27% chance of selection).
 
 	##########################
 ###### remove s-mod options ##

@@ -6,12 +6,14 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import static data.hullmods.GachaSMods_randomSMod.*;
@@ -32,7 +34,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
-
+        // todo: the numbers still seem to be slightly off when it's a d-mod or something
         if ((ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship)
                 && !ship.getVariant().hasHullMod(PLACEHOLDER_ID + "0"))
                 || ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
@@ -76,7 +78,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
             // anti-save scum stuff
-            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING_SETTING)) {
+            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING)) {
                 savedSeed = getSeed(ship, seedKey);
                 random = new Random(savedSeed);
                 //log.info("Loaded seed " + savedSeed);
@@ -88,15 +90,12 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             variant.addMod(spec.getId());
 
             //log.info("Removing s-mods...");
-            // the picker removes the same number of mods, but which mods exactly may vary after cancelling
-            // under no save-scumming rules because when cancelling it changes the order of the s-mods
-            // fixing that means adding like a TreeMap comparator thing for sorting before picking?
-            // todo: fuck.
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-            // need to not add placeholders into the picker if repeated s-mod removal is done
-            for (String sMod : variant.getSMods()) {
-                if (!sMod.startsWith(MOD_ID)) {
-                    picker.add(sMod);
+            ArrayList<String> sModIds = new ArrayList<>(variant.getSMods());
+            Collections.sort(sModIds); // do this or upon cancellation the s-mods will be added in a different order, messing up the which mods are removed
+            for (String sModId : sModIds) {
+                if (!sModId.startsWith(MOD_ID)) { // need to not add placeholders into the picker if repeated s-mod removal is done
+                    picker.add(sModId);
                 }
             }
 
@@ -200,6 +199,13 @@ public class GachaSMods_removeSMods extends BaseHullMod {
     @Override
     public Color getNameColor() {
         return Misc.getHighlightColor();
+    }
+
+    @Override
+    public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
+        float PAD = 10f;
+        tooltip.addPara(getString("removeBetween1") + "%s" + getString("removeBetween2") + "%s" + getString("removeBetween3"),
+                PAD, Misc.getHighlightColor(), Global.getSettings().getString(MIN_REMOVED_SMODS), Global.getSettings().getString(MAX_REMOVED_SMODS));
     }
 
     // hard limits 'cuz setting it dynamically would be very annoying

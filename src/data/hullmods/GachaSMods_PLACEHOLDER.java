@@ -34,7 +34,7 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
     // I think it's possible to pick the same tip, unfortunately, but c'est la vie it's not worth trying to fix
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
-        String SECTION_HEADING = getString("sectionHeading");
+        String SECTION_HEADING = getString("placeholderSectionHeading");
         String TIPS_PATH = "data/strings/tips.json";
         String STARSECTOR_CORE = "starsector-core";
         float PAD = 5f;
