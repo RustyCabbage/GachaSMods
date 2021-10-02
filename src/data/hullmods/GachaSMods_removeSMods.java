@@ -24,42 +24,39 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     private static final Logger log = Global.getLogger(GachaSMods_removeSMods.class);
 
-    private final String HULLMOD_CONFLICT = getString("gachaConflict");
-    private final String NO_SMODS = getString("removeInapplicable"); // "Ship is at the built-in hullmod limit"
+    private final String
+            HULLMOD_CONFLICT = getString("gachaConflict"), // "Incompatible with "
+            NO_SMODS = getString("removeInapplicable"); // "Ship is at the built-in hullmod limit"
 
     // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
-    private final ArrayList<String> removedMods = new ArrayList<>(); //cleared every time
-    private int numSP = -1; //constant per character
+    private final ArrayList<String> removedMods = new ArrayList<>(); // cleared every time upon confirm or cancel
+    private int numSP = -1; // constant per character, updated every time it's used
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
         // todo: the numbers still seem to be slightly off when it's a d-mod or something
+        // if the ship's at the max number of s-mods, add 1 to the max so you can s-mod this one
+        // can't remember why the placeholder stuff, but it was important
         if ((ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship)
                 && !ship.getVariant().hasHullMod(PLACEHOLDER_ID + "0"))
                 || ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
             ship.getMutableStats().getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).modifyFlat(id, 1);
         }
-
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
         Random random = new Random();
-        String seedKey = null;
+        String seedKey = (ship.getFleetMemberId() != null) ? SAVED_SEED + "_" + ship.getFleetMemberId() : null;
         long savedSeed;
         int minSModsToRemove = boundMinMaxSModsToRemove(Global.getSettings().getInt(MIN_REMOVED_SMODS));
         int maxSModsToRemove = Math.max(minSModsToRemove, boundMinMaxSModsToRemove(Global.getSettings().getInt(MAX_REMOVED_SMODS)));
-
-        if (ship.getFleetMemberId() != null) {
-            seedKey = SAVED_SEED + "_" + ship.getFleetMemberId();
-        }
 
         // fix for s-modding being possible when only placeholders are present
         // key is that it doesn't do anything if there are both placeholders and non-placeholders
         // since there are cases where it both should and should not be possible to s-mod
         // e.g. pre-confirmation: no s-modding, post-confirmation with additional hullmods that can be removed: yes
         if (!variant.getSMods().isEmpty()) {
-            boolean noPlaceholders = true;
-            boolean onlyPlaceholders = true;
+            boolean noPlaceholders = true, onlyPlaceholders = true;
             for (String sModId : variant.getSMods()) {
                 if (sModId.startsWith(PLACEHOLDER_ID)) {
                     noPlaceholders = false;
@@ -84,10 +81,17 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 //log.info("Loaded seed " + savedSeed);
             }
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
-            variant.removePermaMod(spec.getId());
+
             // dumb way to continue checks during confirmation screen, because otherwise the script stops when it's removed
-            // also I don't make it a non-s-mod perma-mod because then you can't s-mod multiple times in a row
+            // also I don't make it a non-s-mod perma-mod because I copy-pasted from randomSMod
+            variant.removePermaMod(spec.getId());
             variant.addMod(spec.getId());
+            // need this so that you can actually confirm the s-mod process
+            adjustHullModForSModding(PLACEHOLDER_ID + "0", ship.getHullSize(), false, random);
+            if (variant.hasHullMod(PLACEHOLDER_ID + "0")) {
+                variant.removeMod(PLACEHOLDER_ID + "0"); // do I need to do this? I think not but bleh
+            }
+            variant.addPermaMod(PLACEHOLDER_ID + "0", true);
 
             //log.info("Removing s-mods...");
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
@@ -107,24 +111,18 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             //log.info("tempMin: " + tempMin + ", tempMax: " + tempMax);
             int numSModsToRemove = tempMin + random.nextInt(Math.max(1, tempMax - tempMin + 1));
             log.info("Removing " + numSModsToRemove + " s-mods");
+
             for (int i = 1; i <= numSModsToRemove; i++) {
-                String pickId = picker.pick(random);
+                String pickId = picker.pick(random); // can't select seed with pickAndRemove() wtheck (tho I get that it probably makes no sense to do so)
                 picker.remove(pickId);
                 variant.removePermaMod(pickId);
                 removedMods.add(pickId); // may need to add them back if we cancel, so remember them
-                log.info("Removing " + pickId);
+                log.info("Removed " + pickId);
 
-                // we need to add # removed s-mods + 1 or else you can't press confirm
+                // we need to add [# removed s-mods] placeholders or else you can't press confirm
                 adjustHullModForSModding(PLACEHOLDER_ID + i, ship.getHullSize(), false, random);
                 variant.addPermaMod(PLACEHOLDER_ID + i, true);
             }
-
-            // need this so that you can actually confirm the s-mod process
-            adjustHullModForSModding(PLACEHOLDER_ID + "0", ship.getHullSize(), false, random);
-            if (variant.hasHullMod(PLACEHOLDER_ID + "0")) {
-                variant.removeMod(PLACEHOLDER_ID + "0");
-            }
-            variant.addPermaMod(PLACEHOLDER_ID + "0", true);
             // blocks the s-modding process, so you can't do it more than once
             spec.addTag(Tags.HULLMOD_NO_BUILD_IN);
         }
@@ -140,7 +138,6 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                     variant.addPermaMod(removedModId, true);
                     //log.info("Re-added " + removedModId);
                 }
-
                 for (int i = 0; i <= maxSModsToRemove; i++) {
                     if (variant.hasHullMod(PLACEHOLDER_ID + i)) {
                         variant.removeMod(PLACEHOLDER_ID + i);

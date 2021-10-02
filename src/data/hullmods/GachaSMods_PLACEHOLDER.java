@@ -30,11 +30,10 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
         }
     }
 
-    // just having a little fun, dunno what else to do with these things
-    // I think it's possible to pick the same tip, unfortunately, but c'est la vie it's not worth trying to fix
+    // tip changes every time you mouseover, which is probably the best way to handle it anyways
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
-        String SECTION_HEADING = getString("placeholderSectionHeading");
+        String SECTION_HEADING = getString("placeholderSectionHeading"); // "Blink and you'll miss me"
         String TIPS_PATH = "data/strings/tips.json";
         String STARSECTOR_CORE = "starsector-core";
         float PAD = 5f;
@@ -72,5 +71,5 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
     @Override
     public int getDisplaySortOrder() {
         return -1;
-    }
+    } // shows before the real s-mods
 }

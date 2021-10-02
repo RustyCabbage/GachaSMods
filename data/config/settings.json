@@ -60,7 +60,7 @@
 		"vastbulk",								# breaks AI and is boring
 		"diableavionics_virtuousMasterHullmod", # crashes
 	],
-	# Please tell me whenever you notice a modded hullmod that causes issues and I'll update the list.
+	# Please tell me whenever you notice a modded hullmod that causes issues (crashes) and I'll update the list.
 
 	############################
 ###### selection mode options ##

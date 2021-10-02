@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 
 import static data.scripts.GachaSMods_Utils.*;
 
@@ -23,7 +23,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
 
     private static final Logger log = Global.getLogger(GachaSMods_ModPlugin.class);
 
-    //public static String SETTINGS_JSON = "data/config/settings.json"; // todo: Idk does this need to be externalized?
+    //public static String SETTINGS_JSON = "data/config/settings.json";
 
     @Override
     public void onGameLoad(boolean newGame) {
@@ -35,49 +35,6 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             log.error("Could not load " + MOD_ID + "/" + SETTINGS_JSON);
         }
         */
-        // should these hullmods require a spaceport? no Tags.REQUIRES_SPACEPORT so I am too lazy
-        // block building in all other hullmods
-        if (!(Global.getSettings().getBoolean(ALLOW_STANDARD_SMODS) || Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS))) {
-            for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
-                if (!hullmod.hasTag(Tags.HULLMOD_NO_BUILD_IN)
-                        && !hullmod.hasTag(MOD_ID)) {
-                    hullmod.addTag(Tags.HULLMOD_NO_BUILD_IN);
-                }
-            }
-        }
-        // disables the random s-mods hullmod, which kinda makes this whole mod moot but whatever maybe they just want s-mod removing features
-        if (Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS)) {
-            //log.info(RANDOM_SMOD_ID + " disabled");
-            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(true);
-            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(true); // you have to set both hidden and hiddenEverywhere to true, TIL
-        } else {
-            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(false);
-            Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(false);
-        }
-        // disables the remove s-mods hullmod, as god intended
-        if (Global.getSettings().getBoolean(DISABLE_REMOVE_SMODS)) {
-            //log.info(REMOVE_SMOD_ID + " disabled");
-            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(true);
-            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(true);
-        } else {
-            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(false);
-            Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(false);
-        }
-        // remove hullmods from being known by other factions for save compatibility
-        for (FactionAPI faction : Global.getSector().getAllFactions()) {
-            ArrayList<String> hullModsToRemove = new ArrayList<>();
-            if (faction.getId().equals(Factions.PLAYER)) {
-                continue;
-            }
-            for (String hullModId : faction.getKnownHullMods()) {
-                if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
-                    hullModsToRemove.add(hullModId);
-                }
-            }
-            for (String hullModId : hullModsToRemove) {
-                faction.removeKnownHullMod(hullModId);
-            }
-        }
         // load blacklisted hullmods
         try {
             JSONArray array = Global.getSettings().getJSONArray(BLACKLISTED_HULLMODS_ARRAY);
@@ -88,35 +45,61 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         } catch (JSONException e) {
             log.error("Could not load " + BLACKLISTED_HULLMODS_ARRAY);
         }
+        // disables the random s-mods hullmod, which kinda makes this whole mod moot but whatever maybe they just want the s-mod removing features
+        boolean disableRandomSMods = Global.getSettings().getBoolean(DISABLE_RANDOM_SMODS);
+        Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(disableRandomSMods);
+        Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(disableRandomSMods); // you have to set both hidden and hiddenEverywhere to true, TIL
+        // disables the remove s-mods hullmod, as god intended
+        boolean disableRemoveSMods = Global.getSettings().getBoolean(DISABLE_REMOVE_SMODS);
+        Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(disableRemoveSMods);
+        Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(disableRemoveSMods);
+        // block building-in all the other hullmods
+        if (!(Global.getSettings().getBoolean(ALLOW_STANDARD_SMODS) || disableRandomSMods)) {
+            for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
+                if (!hullModSpec.getId().startsWith(MOD_ID)) {
+                    hullModSpec.addTag(Tags.HULLMOD_NO_BUILD_IN);
+                }
+            }
+        }
+        // remove hullmods from being known by other factions for save compatibility
+        // note that having them be a default hullmod in the .csv avoids it being added to loot tables, I think
+        for (FactionAPI faction : Global.getSector().getAllFactions()) {
+            if (faction.getId().equals(Factions.PLAYER)) {
+                continue;
+            }
+            Iterator<String> knownHullMods = faction.getKnownHullMods().iterator();
+            while (knownHullMods.hasNext()) {
+                String hullModId = knownHullMods.next();
+                if (hullModId.startsWith(MOD_ID)) {
+                    knownHullMods.remove();
+                }
+            }
+        }
+        // should these hullmods require a spaceport? no Tags.REQUIRES_SPACEPORT, so I am too lazy
     }
 
     // for save compatibility
     @Override
     public void beforeGameSave() {
         FactionAPI faction = Global.getSector().getPlayerFaction();
-        ArrayList<String> hullModsToRemove = new ArrayList<>();
-        for (String hullModId : faction.getKnownHullMods()) {
-            if (Global.getSettings().getHullModSpec(hullModId).hasTag(MOD_ID)) {
-                hullModsToRemove.add(hullModId);
+        Iterator<String> knownHullMods = faction.getKnownHullMods().iterator();
+        while (knownHullMods.hasNext()) {
+            String hullModId = knownHullMods.next();
+            if (hullModId.startsWith(MOD_ID)) {
+                knownHullMods.remove();
             }
-        }
-        for (String hullModId : hullModsToRemove) {
-            faction.removeKnownHullMod(hullModId);
         }
         long tick = System.currentTimeMillis();
         // check for ships in storage / sold to markets
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             for (SubmarketAPI submarket : market.getSubmarketsCopy()) {
                 for (FleetMemberAPI m : submarket.getCargo().getMothballedShips().getMembersListCopy()) {
-                    ArrayList<String> hullModsToRemoveFromShip = new ArrayList<>();
-                    for (String hullModId : m.getVariant().getHullMods()) {
-                        if (Global.getSettings().getHullModSpec(hullModId).getId().startsWith(MOD_ID)) {
-                            hullModsToRemoveFromShip.add(hullModId);
+                    Iterator<String> hullMods = m.getVariant().getHullMods().iterator();
+                    while (hullMods.hasNext()) {
+                        String hullModId = hullMods.next();
+                        if (hullModId.startsWith(MOD_ID)) {
+                            hullMods.remove();
                         }
-                    }
-                    for (String hullModId : hullModsToRemoveFromShip) {
-                        m.getVariant().removeMod(hullModId);
-                        m.getVariant().removePermaMod(hullModId);
                     }
                 }
             }
@@ -125,15 +108,12 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         for (LocationAPI loc : Global.getSector().getAllLocations()) {
             for (CampaignFleetAPI f : loc.getFleets()) {
                 for (FleetMemberAPI m : f.getFleetData().getMembersListCopy()) {
-                    ArrayList<String> hullModsToRemoveFromShip = new ArrayList<>();
-                    for (String hullModId : m.getVariant().getHullMods()) {
-                        if (Global.getSettings().getHullModSpec(hullModId).getId().startsWith(MOD_ID)) {
-                            hullModsToRemoveFromShip.add(hullModId);
+                    Iterator<String> hullMods = m.getVariant().getHullMods().iterator();
+                    while (hullMods.hasNext()) {
+                        String hullModId = hullMods.next();
+                        if (hullModId.startsWith(MOD_ID)) {
+                            hullMods.remove();
                         }
-                    }
-                    for (String hullModId : hullModsToRemoveFromShip) {
-                        m.getVariant().removeMod(hullModId);
-                        m.getVariant().removePermaMod(hullModId);
                     }
                 }
             }
@@ -145,7 +125,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
     @Override
     public void afterGameSave() {
         FactionAPI faction = Global.getSector().getPlayerFaction();
-        for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) {
+        for (HullModSpecAPI hullmod : Global.getSettings().getAllHullModSpecs()) { // maybe should just write the two hullmods, but future-proofing?
             if (hullmod.hasTag(MOD_ID)) {
                 faction.addKnownHullMod(hullmod.getId());
             }
