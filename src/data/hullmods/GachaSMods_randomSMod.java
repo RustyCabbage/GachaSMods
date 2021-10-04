@@ -2,7 +2,6 @@ package data.hullmods;
 
 import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
@@ -18,6 +17,7 @@ import org.apache.log4j.Logger;
 import java.awt.*;
 import java.util.*;
 
+import static data.scripts.GachaSMods_ModPlugin.*;
 import static data.scripts.GachaSMods_Utils.*;
 
 public class GachaSMods_randomSMod extends BaseHullMod {
@@ -56,7 +56,6 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
         Map<String, Object> saveData = Global.getSector().getPersistentData();
-        SettingsAPI settings = Global.getSettings();
         String seedKey = null, loadKey = null, tempSeedKey = null;
         Random random = new Random();
         // these will be replaced if noSaveScumming is enabled, else they don't matter
@@ -76,7 +75,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             if (saveData.get(tempSeedKey) == null) {
                 saveData.put(tempSeedKey, tempSeed);
                 //log.info("initializing seed key");
-            } else if (settings.getBoolean(NO_SAVE_SCUMMING)) {
+            } else if (NO_SAVE_SCUMMING) {
                 tempSeed = (long) saveData.get(tempSeedKey); // gotta do this or there are problems when saving the temp seed
             }
         }
@@ -89,7 +88,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // 2. s-modding one at a time has the same effect as s-modding everything at once
             // 3. s-modding is consistent when taking the hullmod on/off and stuff
             //    (so it can only update when in the process of s-modding so there's a bunch of ugly initialization stuff)
-            if (settings.getBoolean(NO_SAVE_SCUMMING)) {
+            if (NO_SAVE_SCUMMING) {
                 savedSeed = getSeed(ship, seedKey);
                 // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
                 shouldLoadSeed = (boolean) saveData.get(loadKey);
@@ -113,18 +112,15 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
             // choose the hullmod to s-mod
             String chosenSModId;
-            if (ship.getName().equalsIgnoreCase(RANDOM_OVERRIDE) || settings.getBoolean(TRUE_RANDOM)) {
+            if (ship.getName().equalsIgnoreCase(RANDOM_OVERRIDE) || TRUE_RANDOM) {
                 //log.info("Using true random picker");
                 random = new Random();
-                WeightedRandomPicker<String> picker = populatePicker(settings.getString(SELECTION_MODE), random, ship,
-                        false, false, false);
+                WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
+                        false, false, false, false);
                 chosenSModId = picker.pick(random);
             } else {
-                boolean onlyKnownHullMods = settings.getBoolean(ONLY_KNOWN_HULLMODS);
-                boolean onlyNotHiddenHullmods = settings.getBoolean(ONLY_NOT_HIDDEN_HULLMODS);
-                boolean onlyApplicableHullmods = settings.getBoolean(ONLY_APPLICABLE_HULLMODS);
-                WeightedRandomPicker<String> picker = populatePicker(settings.getString(SELECTION_MODE), random, ship,
-                        onlyKnownHullMods, onlyNotHiddenHullmods, onlyApplicableHullmods);
+                WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
+                        ONLY_KNOWN_HULLMODS, ONLY_NOT_HIDDEN_HULLMODS, ONLY_APPLICABLE_HULLMODS, RESPECT_NO_BUILD_IN);
                 chosenSModId = picker.pick(random);
             }
             log.info("Picked " + chosenSModId);
@@ -137,9 +133,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // also randomizes the cost, so you can't predict the hullmod based on the xp cost
             adjustHullModForSModding(chosenSModId, ship.getHullSize(), true, random);
 
-            if (variant.hasHullMod(chosenSModId)) {
-                variant.removeMod(chosenSModId); // make sure the variant doesn't already have it as a modular hullmod. I can't remember if this caused issues but overkill never fails
-            }
+            variant.removeMod(chosenSModId);
             variant.addPermaMod(chosenSModId, true);
             // don't do this because then they don't count as s-mods which means they don't cost story points
             // variant.addPermaMod(chosenSModId, !(chosenSModSpec.hasTag(Tags.HULLMOD_DMOD) || chosenSModSpec.hasTag(SHOULD_BE_DMOD)));
@@ -158,7 +152,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 //log.info("S-modding cancelled");
                 for (String addedModId : addedMods) {
                     if (variant.getNonBuiltInHullmods().contains(addedModId)) {
-                        variant.removeMod(addedModId);
+                        variant.removeMod(addedModId); // todo: not sure if I need this
                         //log.info("removed not-s-modded mod " + addedModId);
                     }
                     restoreHullMod(addedModId); // fix any changes made earlier
@@ -235,25 +229,26 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
         float PAD = 10f;
-        boolean onlyNotHiddenHullmods = Global.getSettings().getBoolean(ONLY_NOT_HIDDEN_HULLMODS) || Global.getSettings().getBoolean(TRUE_RANDOM);
+        if (LOADING_FAILED) {
+            tooltip.addSectionHeading(getString("loadingFailedHeading"),
+                    Misc.getNegativeHighlightColor(), Misc.getGrayColor(), Alignment.MID, PAD);
+            tooltip.addPara(getString("attemptingToLoad"), PAD, Misc.getNegativeHighlightColor(), attemptingToLoad);
+        }
         String headingText, descriptionText;
         String RARE1_PROB = null, RARE2_PROB = null, RARE3_PROB = null, RARE4_PROB = null;
-        switch (Global.getSettings().getString(SELECTION_MODE)) {
+        switch (SELECTION_MODE) {
             case PROPORTIONAL_CODE:
                 headingText = getString("randomPRMode"); // "PROPORTIONAL MODE"
                 descriptionText = getString("randomPRDesc"); // "Hullmods are selected with probability of selection proportional to their OP cost."
                 break;
             case TRUE_GACHA_CODE:
                 headingText = getString("randomTGMode"); // "TRUE GACHA MODE"
-                float RARE1_MULT = Global.getSettings().getFloat(TG_RARE1_MULT);
-                float RARE2_MULT = Global.getSettings().getFloat(TG_RARE2_MULT);
-                float RARE3_MULT = Global.getSettings().getFloat(TG_RARE3_MULT);
-                float RARE4_MULT = Global.getSettings().getFloat(TG_RARE4_MULT);
-                float SUM = (onlyNotHiddenHullmods) ? RARE2_MULT + RARE3_MULT : RARE1_MULT + RARE2_MULT + RARE3_MULT + RARE4_MULT;
-                RARE1_PROB = String.format("%.1f", RARE1_MULT / SUM * 100) + "%";
-                RARE2_PROB = String.format("%.1f", RARE2_MULT / SUM * 100) + "%";
-                RARE3_PROB = String.format("%.1f", RARE3_MULT / SUM * 100) + "%";
-                RARE4_PROB = String.format("%.1f", RARE4_MULT / SUM * 100) + "%";
+                float SUM = (!ONLY_NOT_HIDDEN_HULLMODS || TRUE_RANDOM)
+                        ? TG_RARE1_MULT + TG_RARE2_MULT + TG_RARE3_MULT + TG_RARE4_MULT : TG_RARE2_MULT + TG_RARE3_MULT;
+                RARE1_PROB = String.format("%.1f", TG_RARE1_MULT / SUM * 100) + "%";
+                RARE2_PROB = String.format("%.1f", TG_RARE2_MULT / SUM * 100) + "%";
+                RARE3_PROB = String.format("%.1f", TG_RARE3_MULT / SUM * 100) + "%";
+                RARE4_PROB = String.format("%.1f", TG_RARE4_MULT / SUM * 100) + "%";
                 descriptionText = getString("randomTGDesc");
                 // "Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods).
                 // After a category is selected, a hullmod within that category is selected with uniform probability of selection."
@@ -263,13 +258,13 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 descriptionText = getString("randomCLDesc"); // "Hullmods are selected with uniform probability of selection."
         }
         tooltip.addSectionHeading(headingText, Alignment.MID, PAD);
-        if (Global.getSettings().getString(SELECTION_MODE).equals(TRUE_GACHA_CODE)) {
-            if (!onlyNotHiddenHullmods) {
+        if (SELECTION_MODE.equals(TRUE_GACHA_CODE)) {
+            if (!ONLY_NOT_HIDDEN_HULLMODS || TRUE_RANDOM) {
                 tooltip.addPara(getString("randomTGRare1Rate") + "%s", PAD, Misc.getHighlightColor(), RARE1_PROB); // "• D-Mod Rate: "
             }
             tooltip.addPara(getString("randomTGRare2Rate") + "%s", PAD, Misc.getHighlightColor(), RARE2_PROB); // "• Cheap Hullmod Rate: "
             tooltip.addPara(getString("randomTGRare3Rate") + "%s", PAD, Misc.getHighlightColor(), RARE3_PROB); // "• Standard Hullmod Rate: "
-            if (!onlyNotHiddenHullmods) {
+            if (!ONLY_NOT_HIDDEN_HULLMODS || TRUE_RANDOM) {
                 tooltip.addPara(getString("randomTGRare4Rate") + "%s", PAD, Misc.getHighlightColor(), RARE4_PROB); // "• Hidden Hullmod Rate: "
             }
         }
@@ -420,17 +415,17 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         return otherMods;
     }
 
-    public static WeightedRandomPicker<String> populatePicker(String mode, Random random, ShipAPI ship,
-                                                              boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
+    public static WeightedRandomPicker<String> populatePicker(String mode, Random random, ShipAPI ship, boolean onlyKnownHullmods,
+                                                              boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods, boolean respectNoBuildIn) {
         ShipAPI.HullSize hullSize = ship.getHullSize();
-        ArrayList<String> validHullModIds = getValidHullMods(ship, onlyKnownHullmods, onlyNotHiddenHullmods, onlyApplicableHullmods);
+        ArrayList<String> validHullModIds = getValidHullMods(ship, onlyKnownHullmods, onlyNotHiddenHullmods, onlyApplicableHullmods, respectNoBuildIn);
         WeightedRandomPicker<String> picker = (random != null) ? new WeightedRandomPicker<String>(random) : new WeightedRandomPicker<String>();
         switch (mode) {
             case PROPORTIONAL_CODE:
                 // PROPORTIONAL
                 // Assigns weight of 1/OP, 1/(20*size) if 0 cost, 1/(OP+20*size) if hidden
                 // e.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150
-                int INCR_FOR_FREE_OR_HIDDEN_MODS = Math.max(1, Global.getSettings().getInt(PR_INCR_FOR_FREE_OR_HIDDEN_MODS));
+                int INCR_FOR_FREE_OR_HIDDEN_MODS = Math.max(1, PR_INCR_FOR_FREE_OR_HIDDEN_MODS);
                 for (String hullModId : validHullModIds) {
                     HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
                     int opCost = 1;
@@ -489,7 +484,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         numRare4++;
                         hullModRarityMap.put(hullModId, 4);
                     } else {
-                        int COST_FOR_RARE2 = Global.getSettings().getInt(TG_COST_FOR_RARE2);
+                        int COST_FOR_RARE2 = TG_COST_FOR_RARE2;
                         int opCost;
                         switch (hullSize) {
                             case FRIGATE:
@@ -538,23 +533,19 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         }
                     }
                 }
-                float RARE1_MULT = Global.getSettings().getFloat(TG_RARE1_MULT);
-                float RARE2_MULT = Global.getSettings().getFloat(TG_RARE2_MULT);
-                float RARE3_MULT = Global.getSettings().getFloat(TG_RARE3_MULT);
-                float RARE4_MULT = Global.getSettings().getFloat(TG_RARE4_MULT);
                 for (Map.Entry<String, Integer> hullModRarityMapEntry : hullModRarityMap.entrySet()) {
                     switch (hullModRarityMapEntry.getValue()) {
                         case 1:
-                            picker.add(hullModRarityMapEntry.getKey(), RARE1_MULT / Math.max(numRare1,1));
+                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE1_MULT / Math.max(numRare1, 1));
                             break;
                         case 2:
-                            picker.add(hullModRarityMapEntry.getKey(), RARE2_MULT / Math.max(numRare2,1));
+                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE2_MULT / Math.max(numRare2, 1));
                             break;
                         case 3:
-                            picker.add(hullModRarityMapEntry.getKey(), RARE3_MULT / Math.max(numRare3,1));
+                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE3_MULT / Math.max(numRare3, 1));
                             break;
                         case 4:
-                            picker.add(hullModRarityMapEntry.getKey(), RARE4_MULT / Math.max(numRare4,1));
+                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE4_MULT / Math.max(numRare4, 1));
                             break;
                         default:
                             log.error("Something broke: hullModRarityMapEntry.getValue()");
@@ -568,40 +559,43 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         return picker;
     }
 
-    public static ArrayList<String> getValidHullMods(ShipAPI ship, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods) {
+    public static ArrayList<String> getValidHullMods(ShipAPI ship, boolean onlyKnownHullmods, boolean onlyNotHiddenHullmods,
+                                                     boolean onlyApplicableHullmods, boolean respectNoBuildIn) {
         ShipVariantAPI variant = ship.getVariant();
         ArrayList<String> validHullModIds = new ArrayList<>();
         if (onlyKnownHullmods && Global.getCurrentState() == GameState.CAMPAIGN) { // playerFaction.getKnownHullMods() NPEs if done outside campaign
-            for (String hullmodId : Global.getSector().getPlayerFaction().getKnownHullMods()) {
-                HullModSpecAPI hullmodSpec = Global.getSettings().getHullModSpec(hullmodId);
+            for (String hullModId : Global.getSector().getPlayerFaction().getKnownHullMods()) {
+                HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
                 // skip if:
-                if (variant.getPermaMods().contains(hullmodId) // built into the variant
-                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
-                        || hullmodId.startsWith(MOD_ID) // part of the mod
-                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
-                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
-                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                if (variant.getPermaMods().contains(hullModId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
+                        || hullModId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled
+                        || (respectNoBuildIn && hullModSpec.hasTag(RESPECT_NO_BUILD_IN_SETTING))
+                        || BLACKLISTED_HULLMODS.contains(hullModId) // blacklisted
                 ) {
                     continue;
                 }
-                validHullModIds.add(hullmodId);
-                //log.info(hullmodId + " added to picker");
+                validHullModIds.add(hullModId);
+                //log.info(hullModId + " added to picker");
             }
         } else {
-            for (HullModSpecAPI hullmodSpec : Global.getSettings().getAllHullModSpecs()) {
-                String hullmodId = hullmodSpec.getId();
+            for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
+                String hullModId = hullModSpec.getId();
                 // skip if:
-                if (variant.getPermaMods().contains(hullmodId) // built into the variant
-                        || variant.getHullSpec().getBuiltInMods().contains(hullmodId) // built into the hull
-                        || hullmodId.startsWith(MOD_ID) // part of the mod
-                        || (onlyApplicableHullmods && !hullmodSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
-                        || (onlyNotHiddenHullmods && hullmodSpec.isHidden()) // not hidden and setting enabled
-                        || BLACKLISTED_HULLMODS.contains(hullmodId) // blacklisted
+                if (variant.getPermaMods().contains(hullModId) // built into the variant
+                        || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
+                        || hullModId.startsWith(MOD_ID) // part of the mod
+                        || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+                        || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled
+                        || (respectNoBuildIn && hullModSpec.hasTag(RESPECT_NO_BUILD_IN_SETTING))
+                        || BLACKLISTED_HULLMODS.contains(hullModId) // blacklisted
                 ) {
                     continue;
                 }
-                validHullModIds.add(hullmodId);
-                //log.info(hullmodId + " added to picker");
+                validHullModIds.add(hullModId);
+                //log.info(hullModId + " added to picker");
             }
         }
         return validHullModIds;

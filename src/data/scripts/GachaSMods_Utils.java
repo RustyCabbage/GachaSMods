@@ -17,26 +17,6 @@ public class GachaSMods_Utils {
             SAVED_SEED = MOD_ID + "_" + "SAVED SEED",
             SHOULD_LOAD_SEED = MOD_ID + "_" + "SHOULD_LOAD_SEED",
             TEMP_SEED = MOD_ID + "_" + "TEMP_SEED";
-    // settings in data/config/settings.json
-    public static final String
-            NO_SAVE_SCUMMING = MOD_ID + "_" + "noSaveScumming",
-            DISABLE_RANDOM_SMODS = MOD_ID + "_" + "disableRandomSMods",
-            DISABLE_REMOVE_SMODS = MOD_ID + "_" + "disableRemoveSMods",
-            ALLOW_STANDARD_SMODS = MOD_ID + "_" + "allowStandardSMods",
-            SELECTION_MODE = MOD_ID + "_" + "selectionMode",
-            TRUE_RANDOM = MOD_ID + "_" + "trueRandomMode",
-            BLACKLISTED_HULLMODS_ARRAY = MOD_ID + "_" + "blacklistedHullmods",
-            ONLY_KNOWN_HULLMODS = MOD_ID + "_" + "onlyKnownHullmods",
-            ONLY_NOT_HIDDEN_HULLMODS = MOD_ID + "_" + "onlyNotHiddenHullmods",
-            ONLY_APPLICABLE_HULLMODS = MOD_ID + "_" + "onlyApplicableHullmods",
-            PR_INCR_FOR_FREE_OR_HIDDEN_MODS = MOD_ID + "_" + PROPORTIONAL_CODE + "_" + "incrForFreeOrHiddenMods",
-            TG_COST_FOR_RARE2 = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "costForRare2",
-            TG_RARE1_MULT = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare1Mult",
-            TG_RARE2_MULT = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare2Mult",
-            TG_RARE3_MULT = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare3Mult",
-            TG_RARE4_MULT = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare4Mult",
-            MIN_REMOVED_SMODS = MOD_ID + "_" + "minRemovedSMods",
-            MAX_REMOVED_SMODS = MOD_ID + "_" + "maxRemovedSMods";
     // hullmod ids
     public static final String
             RANDOM_SMOD_ID = MOD_ID + "_" + "randomSMod",

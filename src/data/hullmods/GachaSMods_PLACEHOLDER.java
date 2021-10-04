@@ -18,7 +18,7 @@ import static data.scripts.GachaSMods_Utils.*;
 
 public class GachaSMods_PLACEHOLDER extends BaseHullMod {
 
-    private static final Logger log = Global.getLogger(GachaSMods_PLACEHOLDER.class);
+    private final Logger log = Global.getLogger(GachaSMods_PLACEHOLDER.class);
 
     // for save compatibility
     @Override

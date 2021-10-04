@@ -41,7 +41,7 @@
 	"GachaSMods_trueRandomMode": false,
 	# Boolean. Default `false`.
 	# If true, it will be possible to roll (almost) any hullmod. Weights will still follow the selection mode chosen above.
-	## Note: This supercedes the noSaveScumming and onlyXHullmods settings and is equivalent to setting them to false.
+	## Note: This supercedes the noSaveScumming, onlyXHullmods, and respectNoBuildIn settings and is equivalent to setting them to false.
 
 	"GachaSMods_onlyKnownHullmods": false,
 	# Boolean. Default `false`.
@@ -55,6 +55,10 @@
 	# Boolean. Default `true`.
 	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
 	# May have strange results with hidden hullmods.
+
+	"GachaSMods_respectNoBuildIn": false,
+	# Boolean. Default `false`.
+	# If true, will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides).
 
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -13,16 +14,16 @@ import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
+import java.util.TreeSet;
 
 import static data.hullmods.GachaSMods_randomSMod.*;
+import static data.scripts.GachaSMods_ModPlugin.*;
 import static data.scripts.GachaSMods_Utils.*;
-
 
 public class GachaSMods_removeSMods extends BaseHullMod {
 
-    private static final Logger log = Global.getLogger(GachaSMods_removeSMods.class);
+    private final Logger log = Global.getLogger(GachaSMods_removeSMods.class);
 
     private final String
             HULLMOD_CONFLICT = getString("gachaConflict"), // "Incompatible with "
@@ -48,8 +49,8 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         Random random = new Random();
         String seedKey = (ship.getFleetMemberId() != null) ? SAVED_SEED + "_" + ship.getFleetMemberId() : null;
         long savedSeed;
-        int minSModsToRemove = boundMinMaxSModsToRemove(Global.getSettings().getInt(MIN_REMOVED_SMODS));
-        int maxSModsToRemove = Math.max(minSModsToRemove, boundMinMaxSModsToRemove(Global.getSettings().getInt(MAX_REMOVED_SMODS)));
+        int minSModsToRemove = boundMinMaxSModsToRemove(MIN_REMOVED_SMODS);
+        int maxSModsToRemove = Math.max(minSModsToRemove, boundMinMaxSModsToRemove(MAX_REMOVED_SMODS));
 
         // fix for s-modding being possible when only placeholders are present
         // key is that it doesn't do anything if there are both placeholders and non-placeholders
@@ -75,7 +76,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
             // anti-save scum stuff
-            if (Global.getSettings().getBoolean(NO_SAVE_SCUMMING)) {
+            if (NO_SAVE_SCUMMING) {
                 savedSeed = getSeed(ship, seedKey);
                 random = new Random(savedSeed);
                 //log.info("Loaded seed " + savedSeed);
@@ -95,8 +96,8 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
             //log.info("Removing s-mods...");
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-            ArrayList<String> sModIds = new ArrayList<>(variant.getSMods());
-            Collections.sort(sModIds); // do this or upon cancellation the s-mods will be added in a different order, messing up the which mods are removed
+            // tree set or upon cancellation the s-mods will be added in a different order, messing up the which mods are removed
+            TreeSet<String> sModIds = new TreeSet<>(variant.getSMods());
             for (String sModId : sModIds) {
                 if (!sModId.startsWith(MOD_ID)) { // need to not add placeholders into the picker if repeated s-mod removal is done
                     picker.add(sModId);
@@ -201,8 +202,13 @@ public class GachaSMods_removeSMods extends BaseHullMod {
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
         float PAD = 10f;
-        tooltip.addPara(getString("removeBetween1") + "%s" + getString("removeBetween2") + "%s" + getString("removeBetween3"),
-                PAD, Misc.getHighlightColor(), Global.getSettings().getString(MIN_REMOVED_SMODS), Global.getSettings().getString(MAX_REMOVED_SMODS));
+        if (LOADING_FAILED) {
+            tooltip.addSectionHeading(getString("loadingFailedHeading"),
+                    Misc.getNegativeHighlightColor(), Misc.getGrayColor(), Alignment.MID, PAD);
+            tooltip.addPara(getString("attemptingToLoad"), PAD, Misc.getNegativeHighlightColor(), attemptingToLoad);
+        }
+        tooltip.addPara(getString("removeBetween"), PAD, Misc.getHighlightColor(),
+                Integer.toString(MIN_REMOVED_SMODS), Integer.toString(MAX_REMOVED_SMODS));
     }
 
     // hard limits 'cuz setting it dynamically would be very annoying

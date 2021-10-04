@@ -2,6 +2,8 @@
     "GachaSMods":{
         "randomOverride": "eurobeat",
         "gachaConflict": "Incompatible with ",
+        "loadingFailedHeading": "WARNING: Error loading settings.json",
+        "attemptingToLoad": "Failed to load setting \"%s\"",
         "randomInapplicable": "Ship is at the s-mod limit",
         "randomPRMode": "PROPORTIONAL MODE",
         "randomPRDesc": "Hullmods are selected with probability of selection proportional to their OP cost.",
@@ -14,9 +16,7 @@
         "randomCLMode": "CLASSIC MODE",
         "randomCLDesc": "Hullmods are selected with uniform probability of selection.",
         "removeInapplicable": "Ship has no s-mods",
-        "removeBetween1": "Will remove between ",
-        "removeBetween2": " and ",
-        "removeBetween3": " s-mods, if possible.",
+        "removeBetween": "Will remove between %s and %s s-mods, if possible",
 		"placeholderSectionHeading": "Blink and you'll miss me",
     }
 }
