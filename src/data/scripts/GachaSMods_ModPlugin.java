@@ -159,6 +159,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         log.info("Time to clean save of hullmods (ms): " + (tock - tick)); //in my test this took 1 ms
     }
 
+    /* this is apparently unnecessary
     @Override
     public void afterGameSave() {
         FactionAPI faction = Global.getSector().getPlayerFaction();
@@ -168,6 +169,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             }
         }
     }
+     */
 
     private void loadSettings() {
         try {
