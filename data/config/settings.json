@@ -4,6 +4,10 @@
 	#######################
 ###### v important stuff ##
 	#######################
+	#"maxPermanentHullmods":2,
+	# Integer. Default `2`.
+	# This is a vanilla settings, commented out here for easy accessibility.
+
 	"GachaSMods_noSaveScumming": true,
 	# Boolean. Default `true`.
 	# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
@@ -29,11 +33,11 @@
 ###### random s-mod options ##
 	##########################
 	"GachaSMods_selectionMode": "CL",
-	# String. Default "CL".
+	# String. Default `CL`.
 	###  MODES: 
-	# "CL": Classic - Hullmods are selected with uniform probability of selection.
-	# "PR": Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
-	# "TG": True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
+	# `CL`: Classic - Hullmods are selected with uniform probability of selection.
+	# `PR`: Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
+	# `TG`: True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
 	###
 	# Must be spelt correctly, or you're stuck with Classic mode.
 	# You can adjust the Proportional and True Gacha settings further down under 'selection mode options'
@@ -47,24 +51,30 @@
 	# Boolean. Default `false`.
 	# If true, will only roll hullmods known by the player.
 	
-	"GachaSMods_onlyNotHiddenHullmods": true,
+	"GachaSMods_onlyNotHiddenHullmods": false,
 	# Boolean. Default `true`.
 	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
+	# If false, you can roll any hidden mod, including d-mods.
 	
 	"GachaSMods_onlyApplicableHullmods": true,
 	# Boolean. Default `true`.
 	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
 	# May have strange results with hidden hullmods.
 
-	"GachaSMods_respectNoBuildIn": false,
-	# Boolean. Default `false`.
+	"GachaSMods_respectNoBuildIn": true,
+	# Boolean. Default `true`.
 	# If true, will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides).
 
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring
-		"diableavionics_virtuousMasterHullmod", # crashes
+		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
+		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
+		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
+		"diableavionics_virtuousMasterHullmod", # java.lang.NullPointerException
 	],
-	# Please tell me whenever you notice a modded hullmod that causes issues (crashes) and I'll update the list.
+	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
+	# There's a separate file - greylistedHullmods.txt - with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
+	# I'll provide and update that list, but I won't be curating it, nor adding it to this list by default. You should be able to copy/paste it into this array without issue though.
 
 	############################
 ###### selection mode options ##

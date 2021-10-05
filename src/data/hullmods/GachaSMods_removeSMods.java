@@ -36,7 +36,9 @@ public class GachaSMods_removeSMods extends BaseHullMod {
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
-        // todo: the numbers still seem to be slightly off when it's a d-mod or something
+        // todo: the numbers still seem to be slightly off when it's a hidden mod
+        // todo: it tells you how many mods are removed if they're all hidden mods
+        // todo: but I guess it's still fine if there are a mix? no because you can calc from number of story points
         // if the ship's at the max number of s-mods, add 1 to the max so you can s-mod this one
         // can't remember why the placeholder stuff, but it was important
         if ((ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship)
@@ -59,6 +61,16 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         if (!variant.getSMods().isEmpty()) {
             boolean noPlaceholders = true, onlyPlaceholders = true;
             for (String sModId : variant.getSMods()) {
+                /* todo: don't like this implementation: I can't easily tell when to put the hidden tag back on
+                    but waiting till after s-modding starts doesn't work
+                // need to remove the hidden tag for these s-mods before the s-modding process has begun, or they'll cost extra story points to remove
+                if (Global.getSettings().getHullModSpec(sModId).isHidden()
+                        //&& Global.getCurrentState() == GameState.CAMPAIGN
+                        //&& !Global.getSector().getPlayerFaction().knowsHullMod(sModId)
+                ) {
+                    adjustHullModForSModding(sModId, ship.getHullSize(), false, null);
+                }
+                 */
                 if (sModId.startsWith(PLACEHOLDER_ID)) {
                     noPlaceholders = false;
                 } else {
@@ -76,7 +88,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // main script that fires when the hullmod has been s-modded
         if (variant.getSMods().contains(spec.getId())) {
             // anti-save scum stuff
-            if (NO_SAVE_SCUMMING) {
+            if (NO_SAVE_SCUMMING && !TRUE_RANDOM) {
                 savedSeed = getSeed(ship, seedKey);
                 random = new Random(savedSeed);
                 //log.info("Loaded seed " + savedSeed);
@@ -88,7 +100,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             variant.removePermaMod(spec.getId());
             variant.addMod(spec.getId());
             // need this so that you can actually confirm the s-mod process
-            adjustHullModForSModding(PLACEHOLDER_ID + "0", ship.getHullSize(), false, random);
+            adjustHullModForSModding(PLACEHOLDER_ID + "0", ship.getHullSize(), false, null);
             if (variant.hasHullMod(PLACEHOLDER_ID + "0")) {
                 variant.removeMod(PLACEHOLDER_ID + "0"); // do I need to do this? I think not but bleh
             }
@@ -104,6 +116,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 }
             }
 
+            // todo: do not allow removing more s-mods than you have story points (probably not worth the hassle)
             // remove at least min(numSMods, minSModsToRemove from settings)
             // remove at most min(numSMods, maxSModsToRemove from settings)
             // I think I added like four fail-safes here, so it's super redundant but oh well
@@ -121,7 +134,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 log.info("Removed " + pickId);
 
                 // we need to add [# removed s-mods] placeholders or else you can't press confirm
-                adjustHullModForSModding(PLACEHOLDER_ID + i, ship.getHullSize(), false, random);
+                adjustHullModForSModding(PLACEHOLDER_ID + i, ship.getHullSize(), false, null);
                 variant.addPermaMod(PLACEHOLDER_ID + i, true);
             }
             // blocks the s-modding process, so you can't do it more than once
@@ -137,6 +150,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 //log.info("Cancelled s-mod removal");
                 for (String removedModId : removedMods) {
                     variant.addPermaMod(removedModId, true);
+                    //restoreHullMod(removedModId); // used in the "don't let hidden hullmods cost extra" code
                     //log.info("Re-added " + removedModId);
                 }
                 for (int i = 0; i <= maxSModsToRemove; i++) {
@@ -161,6 +175,11 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                     variant.removePermaMod(PLACEHOLDER_ID + i);
                     restoreHullMod(PLACEHOLDER_ID + i);
                 }
+                /* used in the "don't let hidden hullmods cost extra SP" code
+                for (String removedModId : removedMods) {
+                    restoreHullMod(removedModId);
+                }
+                 */
                 removedMods.clear();
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
 
@@ -209,6 +228,13 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         }
         tooltip.addPara(getString("removeBetween"), PAD, Misc.getHighlightColor(),
                 Integer.toString(MIN_REMOVED_SMODS), Integer.toString(MAX_REMOVED_SMODS));
+        if (!ONLY_NOT_HIDDEN_HULLMODS || TRUE_RANDOM) {
+            tooltip.addSectionHeading(getString("removeHiddenHeading"),Alignment.MID,PAD);
+            tooltip.addPara(getString("removeHiddenSPCost1") + getString("removeHiddenSPCost2"),PAD,
+                    Misc.getNegativeHighlightColor(),getString("removeHiddenSPCost1"));
+            tooltip.addPara(getString("removeHiddenDMods1") + getString("removeHiddenDMods2"), PAD,
+                    Misc.getHighlightColor(), getString("removeHiddenDMods1"));
+        }
     }
 
     // hard limits 'cuz setting it dynamically would be very annoying

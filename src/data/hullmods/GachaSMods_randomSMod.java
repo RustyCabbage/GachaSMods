@@ -48,7 +48,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
     // yeah, yeah they only instantiate once per class blah blah blah
     // they're updated/cleared any time they're used anyways
     private final ArrayList<String> addedMods = new ArrayList<>(); // cleared every time upon confirm or cancel
-    private int numSP = -1; // constant per character, updated every time it's used
+    private int numSP = -1; // constant per character, updated every time it's used // todo maybe I could put this in the utils/modplugin?
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
@@ -569,6 +569,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 // skip if:
                 if (variant.getPermaMods().contains(hullModId) // built into the variant
                         || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
+                        || hullModSpec.isHiddenEverywhere() // you can't tell when you have it, so it causes problems
                         || hullModId.startsWith(MOD_ID) // part of the mod
                         || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
                         || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled
@@ -586,6 +587,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 // skip if:
                 if (variant.getPermaMods().contains(hullModId) // built into the variant
                         || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
+                        || hullModSpec.isHiddenEverywhere() // you can't tell when you have it, so it causes problems
                         || hullModId.startsWith(MOD_ID) // part of the mod
                         || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
                         || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled

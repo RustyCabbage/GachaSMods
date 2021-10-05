@@ -16,7 +16,12 @@
         "randomCLMode": "CLASSIC MODE",
         "randomCLDesc": "Hullmods are selected with uniform probability of selection.",
         "removeInapplicable": "Ship has no s-mods",
-        "removeBetween": "Will remove between %s and %s s-mods, if possible",
+        "removeBetween": "Will remove between %s and %s s-mods, if possible.",
+        "removeHiddenHeading": "Hidden Hullmods",
+        "removeHiddenSPCost1": "WARNING",
+        "removeHiddenSPCost2": ": Removing hidden hullmods will cost an additional story point per hidden hullmod removed.",
+        "removeHiddenDMods1": "Note",
+        "removeHiddenDMods2": ": built-in d-mods can instead be removed for a credit cost by restoring while docked at a market.",
 		"placeholderSectionHeading": "Blink and you'll miss me",
     }
 }
