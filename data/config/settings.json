@@ -6,7 +6,7 @@
 	#######################
 	#"maxPermanentHullmods":2,
 	# Integer. Default `2`.
-	# This is a vanilla settings, commented out here for easy accessibility.
+	# This is a vanilla setting, commented out here for easy accessibility.
 
 	"GachaSMods_noSaveScumming": true,
 	# Boolean. Default `true`.
@@ -51,7 +51,7 @@
 	# Boolean. Default `false`.
 	# If true, will only roll hullmods known by the player.
 	
-	"GachaSMods_onlyNotHiddenHullmods": false,
+	"GachaSMods_onlyNotHiddenHullmods": true,
 	# Boolean. Default `true`.
 	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
 	# If false, you can roll any hidden mod, including d-mods.
@@ -80,7 +80,7 @@
 ###### selection mode options ##
 	############################
 	"GachaSMods_PR_incrForFreeOrHiddenMods": 20,
-	# Integer. Default `20`. Min 1.
+	# Integer. Default `20`. Min `1`.
 	# In Proportional mode, for free or hidden hullmods, this value is added to their OP cost (adjusted for size: (1/2/3/5x)) to determine their weight.
 	# E.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150 under default settings.
 
@@ -110,12 +110,12 @@
 ###### remove s-mod options ##
 	##########################
 	"GachaSMods_minRemovedSMods": 1,
-	# Integer. Default `1`. Min 0. Max 10.
+	# Integer. Default `1`. Min `0`. Max `10`.
 	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward).
 	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
 
 	"GachaSMods_maxRemovedSMods": 3,
-	# Integer. Default `3`. Min 0. Max 10.
+	# Integer. Default `3`. Min `0`. Max `10`.
 	# Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in.
 	# Hard limit of 10 or else something will break.
 	# If it's less than minRemovedSMods, it'll be set equal to the min and I'll be mad at you >:(
