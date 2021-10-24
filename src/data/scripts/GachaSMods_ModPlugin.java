@@ -223,7 +223,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             log.info("Loading " + MOD_ID + "/" + SETTINGS_JSON + " completed");
         } catch (IOException | JSONException e) {
             LOADING_FAILED = true;
-            log.error("Could not load " + MOD_ID + "/" + SETTINGS_JSON + ": problem loading " + attemptingToLoad);
+            log.error("Could not load " + MOD_ID + "/" + SETTINGS_JSON + ": problem loading " + attemptingToLoad, e);
         }
     }
 }

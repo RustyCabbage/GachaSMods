@@ -59,7 +59,7 @@ public class GachaSMods_PLACEHOLDER extends BaseHullMod {
             tooltip.addSectionHeading(SECTION_HEADING, Alignment.MID, -20f);
             tooltip.addPara(pick, PAD);
         } catch (IOException | JSONException e) {
-            log.error("Could not load " + TIPS_PATH);
+            log.error("Could not load " + TIPS_PATH, e);
         }
     }
 
