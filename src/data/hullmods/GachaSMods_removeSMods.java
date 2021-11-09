@@ -196,10 +196,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         if (ship.getVariant().getSMods().size() == 0) {
             return false;
         }
-        if (shipHasOtherModInCategory(ship, spec.getId(), MOD_ID)) {
-            return false;
-        }
-        return true;
+        return !shipHasOtherModInCategory(ship, spec.getId(), MOD_ID);
     }
 
     @Override
@@ -226,12 +223,16 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                     Misc.getNegativeHighlightColor(), Misc.getGrayColor(), Alignment.MID, PAD);
             tooltip.addPara(getString("attemptingToLoad"), PAD, Misc.getNegativeHighlightColor(), attemptingToLoad);
         }
+
+        int minSModsToRemove = boundMinMaxSModsToRemove(MIN_REMOVED_SMODS);
+        int maxSModsToRemove = Math.max(minSModsToRemove, boundMinMaxSModsToRemove(MAX_REMOVED_SMODS));
         tooltip.addPara(getString("removeBetween"), PAD, Misc.getHighlightColor(),
-                Integer.toString(MIN_REMOVED_SMODS), Integer.toString(MAX_REMOVED_SMODS));
+                Integer.toString(minSModsToRemove), Integer.toString(maxSModsToRemove));
+
         if (!ONLY_NOT_HIDDEN_HULLMODS || TRUE_RANDOM) {
-            tooltip.addSectionHeading(getString("removeHiddenHeading"),Alignment.MID,PAD);
-            tooltip.addPara(getString("removeHiddenSPCost1") + getString("removeHiddenSPCost2"),PAD,
-                    Misc.getNegativeHighlightColor(),getString("removeHiddenSPCost1"));
+            tooltip.addSectionHeading(getString("removeHiddenHeading"), Alignment.MID, PAD);
+            tooltip.addPara(getString("removeHiddenSPCost1") + getString("removeHiddenSPCost2"), PAD,
+                    Misc.getNegativeHighlightColor(), getString("removeHiddenSPCost1"));
             tooltip.addPara(getString("removeHiddenDMods1") + getString("removeHiddenDMods2"), PAD,
                     Misc.getHighlightColor(), getString("removeHiddenDMods1"));
         }

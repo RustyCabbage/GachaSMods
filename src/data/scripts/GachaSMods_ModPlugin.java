@@ -76,28 +76,35 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
     @Override
     public void onApplicationLoad() {
         loadSettings();
+        for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
+            if (hullModSpec.hasTag(Tags.HULLMOD_NO_BUILD_IN)) {
+                hullModSpec.addTag(RESPECT_NO_BUILD_IN_SETTING);
+            }
+        }
     }
 
     @Override
     public void onGameLoad(boolean newGame) {
         loadSettings();
         // disables the random s-mods hullmod, which kinda makes this whole mod moot but whatever maybe they just want the s-mod removing features
+        Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(DISABLE_RANDOM_SMODS);
         Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHiddenEverywhere(DISABLE_RANDOM_SMODS);
-        Global.getSettings().getHullModSpec(RANDOM_SMOD_ID).setHidden(DISABLE_RANDOM_SMODS); // you have to set both hidden and hiddenEverywhere to true, TIL
         // disables the remove s-mods hullmod, as god intended
         Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHidden(DISABLE_REMOVE_SMODS);
         Global.getSettings().getHullModSpec(REMOVE_SMOD_ID).setHiddenEverywhere(DISABLE_REMOVE_SMODS);
         // block building-in all the other hullmods
-        if (!(ALLOW_STANDARD_SMODS || DISABLE_RANDOM_SMODS)) {
-            for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
-                if (hullModSpec.hasTag(Tags.HULLMOD_NO_BUILD_IN) && RESPECT_NO_BUILD_IN) {
-                    hullModSpec.addTag(RESPECT_NO_BUILD_IN_SETTING);
-                }
+        for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
+            if (!(ALLOW_STANDARD_SMODS || DISABLE_RANDOM_SMODS)) {
                 if (!hullModSpec.getId().startsWith(MOD_ID)) {
                     hullModSpec.addTag(Tags.HULLMOD_NO_BUILD_IN);
                 }
+            } else {
+                if (hullModSpec.hasTag(Tags.HULLMOD_NO_BUILD_IN) && !hullModSpec.hasTag(RESPECT_NO_BUILD_IN_SETTING)) {
+                    hullModSpec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
+                }
             }
         }
+
         // remove hullmods from being known by other factions for save compatibility
         // note that having them be a default hullmod in the .csv avoids it being added to loot tables, I think
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
@@ -177,50 +184,89 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             attemptingToLoad = SETTINGS_JSON;
             JSONObject settings = Global.getSettings().loadJSON(SETTINGS_JSON, MOD_ID);
             attemptingToLoad = NO_SAVE_SCUMMING_SETTING;
-            NO_SAVE_SCUMMING = settings.getBoolean(NO_SAVE_SCUMMING_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            NO_SAVE_SCUMMING = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = DISABLE_RANDOM_SMODS_SETTING;
-            DISABLE_RANDOM_SMODS = settings.getBoolean(DISABLE_RANDOM_SMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            log.info("Before: " + DISABLE_RANDOM_SMODS);
+            DISABLE_RANDOM_SMODS = settings.optBoolean(attemptingToLoad, false);
+            log.info("After: " + DISABLE_RANDOM_SMODS);
+
             attemptingToLoad = DISABLE_REMOVE_SMODS_SETTING;
-            DISABLE_REMOVE_SMODS = settings.getBoolean(DISABLE_REMOVE_SMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            DISABLE_REMOVE_SMODS = settings.optBoolean(attemptingToLoad, false);
+
             attemptingToLoad = ALLOW_STANDARD_SMODS_SETTING;
-            ALLOW_STANDARD_SMODS = settings.getBoolean(ALLOW_STANDARD_SMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            ALLOW_STANDARD_SMODS = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = SELECTION_MODE_SETTING;
-            SELECTION_MODE = settings.getString(SELECTION_MODE_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getString(attemptingToLoad));
+            SELECTION_MODE = settings.getString(attemptingToLoad);
+
             attemptingToLoad = TRUE_RANDOM_SETTING;
-            TRUE_RANDOM = settings.getBoolean(TRUE_RANDOM_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            TRUE_RANDOM = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = ONLY_KNOWN_HULLMODS_SETTING;
-            ONLY_KNOWN_HULLMODS = settings.getBoolean(ONLY_KNOWN_HULLMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            ONLY_KNOWN_HULLMODS = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = ONLY_NOT_HIDDEN_HULLMODS_SETTING;
-            ONLY_NOT_HIDDEN_HULLMODS = settings.getBoolean(ONLY_NOT_HIDDEN_HULLMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            ONLY_NOT_HIDDEN_HULLMODS = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = ONLY_APPLICABLE_HULLMODS_SETTING;
-            ONLY_APPLICABLE_HULLMODS = settings.getBoolean(ONLY_APPLICABLE_HULLMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            ONLY_APPLICABLE_HULLMODS = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = RESPECT_NO_BUILD_IN_SETTING;
-            RESPECT_NO_BUILD_IN = settings.getBoolean(RESPECT_NO_BUILD_IN_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));
+            RESPECT_NO_BUILD_IN = settings.getBoolean(attemptingToLoad);
+
             attemptingToLoad = PR_INCR_FOR_FREE_OR_HIDDEN_MODS_SETTING;
-            PR_INCR_FOR_FREE_OR_HIDDEN_MODS = settings.getInt(PR_INCR_FOR_FREE_OR_HIDDEN_MODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getInt(attemptingToLoad));
+            PR_INCR_FOR_FREE_OR_HIDDEN_MODS = settings.getInt(attemptingToLoad);
+
             attemptingToLoad = TG_COST_FOR_RARE2_SETTING;
-            TG_COST_FOR_RARE2 = settings.getInt(TG_COST_FOR_RARE2_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getInt(attemptingToLoad));
+            TG_COST_FOR_RARE2 = settings.getInt(attemptingToLoad);
+
             attemptingToLoad = MIN_REMOVED_SMODS_SETTING;
-            MIN_REMOVED_SMODS = settings.getInt(MIN_REMOVED_SMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getInt(attemptingToLoad));
+            MIN_REMOVED_SMODS = settings.getInt(attemptingToLoad);
+
             attemptingToLoad = MAX_REMOVED_SMODS_SETTING;
-            MAX_REMOVED_SMODS = settings.getInt(MAX_REMOVED_SMODS_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getInt(attemptingToLoad));
+            MAX_REMOVED_SMODS = settings.getInt(attemptingToLoad);
+
             attemptingToLoad = TG_RARE1_MULT_SETTING;
-            TG_RARE1_MULT = (float) settings.getDouble(TG_RARE1_MULT_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getDouble(attemptingToLoad));
+            TG_RARE1_MULT = (float) settings.getDouble(attemptingToLoad);
+
             attemptingToLoad = TG_RARE2_MULT_SETTING;
-            TG_RARE2_MULT = (float) settings.getDouble(TG_RARE2_MULT_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getDouble(attemptingToLoad));
+            TG_RARE2_MULT = (float) settings.getDouble(attemptingToLoad);
+
             attemptingToLoad = TG_RARE3_MULT_SETTING;
-            TG_RARE3_MULT = (float) settings.getDouble(TG_RARE3_MULT_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getDouble(attemptingToLoad));
+            TG_RARE3_MULT = (float) settings.getDouble(attemptingToLoad);
+
             attemptingToLoad = TG_RARE4_MULT_SETTING;
-            TG_RARE4_MULT = (float) settings.getDouble(TG_RARE4_MULT_SETTING);
+            log.info("Attempting to load " + attemptingToLoad + ": " + settings.getDouble(attemptingToLoad));
+            TG_RARE4_MULT = (float) settings.getDouble(attemptingToLoad);
+
             // load blacklisted hullmods
             attemptingToLoad = BLACKLISTED_HULLMODS_ARRAY;
-            JSONArray array = settings.getJSONArray(BLACKLISTED_HULLMODS_ARRAY);
+            log.info("Attempting to load " + attemptingToLoad);
+            JSONArray array = settings.getJSONArray(attemptingToLoad);
             for (int i = 0; i < array.length(); i++) {
                 BLACKLISTED_HULLMODS.add((String) array.get(i));
             }
             //log.info("Blacklisted hullmods: " + BLACKLISTED_HULLMODS);
             LOADING_FAILED = false;
-            log.info("Loading " + MOD_ID + "/" + SETTINGS_JSON + " completed");
+            log.info("Loading " + MOD_ID + "/" + SETTINGS_JSON + " completed:");
         } catch (IOException | JSONException e) {
             LOADING_FAILED = true;
             log.error("Could not load " + MOD_ID + "/" + SETTINGS_JSON + ": problem loading " + attemptingToLoad, e);

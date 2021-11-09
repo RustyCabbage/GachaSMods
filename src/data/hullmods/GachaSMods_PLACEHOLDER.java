@@ -14,7 +14,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import static data.scripts.GachaSMods_Utils.*;
+import static data.scripts.GachaSMods_Utils.REMOVE_SMOD_ID;
+import static data.scripts.GachaSMods_Utils.getString;
 
 public class GachaSMods_PLACEHOLDER extends BaseHullMod {
 

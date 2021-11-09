@@ -19,10 +19,12 @@
 	# Boolean. Default `false`.
 	# If true, hides the Random S-Mod hullmod and allows regular s-modding.
 	## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true (fun as it would be to block s-modding entirely :V).
+	## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
 	
 	"GachaSMods_disableRemoveSMods": false,
 	# Boolean. Default `false`.
 	# If true, hides the Remove S-Mod hullmod. TBH, the intended experience for the mod.
+	## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
 
 	"GachaSMods_allowStandardSMods": false,
 	# Boolean. Default `false`.

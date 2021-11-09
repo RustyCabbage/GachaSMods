@@ -20,6 +20,8 @@ import java.util.*;
 import static data.scripts.GachaSMods_ModPlugin.*;
 import static data.scripts.GachaSMods_Utils.*;
 
+// todo if you roll a hullmod you've got equipped it will tell you, lame
+
 public class GachaSMods_randomSMod extends BaseHullMod {
 
     private static final Logger log = Global.getLogger(GachaSMods_randomSMod.class);
@@ -204,10 +206,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         if (ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship) && !ship.getVariant().hasHullMod(spec.getId())) {
             return false;
         }
-        if (shipHasOtherModInCategory(ship, spec.getId(), MOD_ID)) {
-            return false;
-        }
-        return true;
+        return !shipHasOtherModInCategory(ship, spec.getId(), MOD_ID);
     }
 
     @Override
