@@ -73,6 +73,9 @@
 		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 		"diableavionics_virtuousMasterHullmod", # java.lang.NullPointerException
+		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
+		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
+		"sw_reflective_shield"					# CTDs with Shield Shunt
 	],
 	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
 	# There's a separate file - greylistedHullmods.txt - with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
