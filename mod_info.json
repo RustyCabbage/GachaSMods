@@ -3,7 +3,7 @@
   "name":"Gacha S-Mods",
   "author":"rubi",
   "utility":"true",
-  "version":"1.3.1",
+  "version":"1.3.2",
   "description":"Fixes all design issues with s-modding, 100% guaranteed.",
   "gameVersion":"0.95a-RC15",
   "jars":["jars/GachaSMods.jar"],
