@@ -12,6 +12,12 @@
 	# Boolean. Default `true`.
 	# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
 
+	"GachaSMods_useOnlineBlacklist": false,
+	# Boolean. Default `false`. BUT RECOMMENDED TO BE `true`.
+	# If true, will also check the latest blacklist from the GitHub source:
+	# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/settings.json
+	# Hence it would no longer be necessary to redownload the mod for blacklist updates.
+
 	#############################
 ###### disable/enable features ##
 	#############################
@@ -78,11 +84,29 @@
 		"diableavionics_virtuousMasterHullmod", # java.lang.NullPointerException
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
-		"sw_reflective_shield"					# CTDs with Shield Shunt
+		"sw_reflective_shield",					# CTDs with Shield Shunt
+
+		# Requested by Mayu:
+		"bbplus_sm_unstable",
+		"bbplus_sm_highgrade",
+		"bbplus_sm_lowgrade",
+		"bbplus_sm_unstable_dummy",
+		"bbplus_sm_highgrade_dummy",
+		"bbplus_sm_lowgrade_dummy",
+		"bbplus_fluxdischarger",
+		"bbplus_mnemosyne_briar_hull",
 	],
 	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
-	# There's a separate file - greylistedHullmods.txt - with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
-	# I'll provide and update that list, but I won't be curating it, nor adding it to this list by default. You should be able to copy/paste it into this array without issue though.
+	# Alternatively, as a mod author you can either add this same array "GachaSMods_blacklistedHullmods" to your mod
+		# or send me a note with hullmods you'd like to blacklist and I'll update this list with your hullmods.
+
+	"GachaSMods_useGreylist": false,
+	# Boolean. Default `false`.
+	# If true, will prevent loading any hullmods in greylistedHullmods.json
+	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
+	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist), hence this setting is off by default.
+	# If "GachaSMods_useOnlineBlacklist" is true, it will load the greylist from the GitHub source as well:
+	# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/greylistedHullmods.json
 
 	############################
 ###### selection mode options ##
