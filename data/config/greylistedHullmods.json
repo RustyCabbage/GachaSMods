@@ -1,7 +1,7 @@
-    # a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
-	# I'll provide and update this list, but I won't be curating it, nor adding it to the blacklist by default.
-    # You should be able to copy/paste everything inside (don't copy the brackets!) into the blacklist array without issue though.
-    [
+{
+	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
+	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist), hence this setting is off by default.
+    "GachaSMods_greylistedHullmods":[
         ### By President Matt Damon#0001
         # these don't do anything
         "armaa_weaponSwap",
@@ -58,7 +58,7 @@
         "automated_personality_steady",
         "automated_personality_aggressive",
         "automated_personality_reckless",
-        "automated_vent_80",
-		
+        "automated_vent_80",		
 		
     ]
+}

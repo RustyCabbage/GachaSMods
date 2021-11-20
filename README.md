@@ -20,6 +20,7 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 
 ## Options (found in settings.json)
 - No Save Scumming: ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
+- Use Online Blacklist: will also check the latest blacklist from the GitHub source
 ### Disable/Enable Features
 - Disable Random S-Mods: hides the Random S-Mod hullmod and allows regular s-modding.
 - Disable Remove S-Mods: as god intended.
@@ -32,6 +33,7 @@ Fixes all design issues with s-modding, 100% guaranteed. Ü
 - Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
 - Respect "no_build_in": will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides)
 - Blacklisted Hullmods: Want to not roll specific hullmods? Add their hullmod IDs here.
+- Use Greylist: will prevent loading any hullmods in greylistedHullmods.json (an optional, uncurated set of additional hullmods others have told me to not include)
 ### Selection Mode Options
 - Adjust the rarity of free and hidden hullmods in Proportional Mode.
 - Adjust the weights for the different categories in True Gacha Mode, and what counts as a "cheap" hullmod.
