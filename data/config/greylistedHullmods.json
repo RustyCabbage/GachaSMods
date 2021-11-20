@@ -1,6 +1,6 @@
 {
 	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
-	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist), hence this setting is off by default.
+	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist)
     "GachaSMods_greylistedHullmods":[
         ### By President Matt Damon#0001
         # these don't do anything
