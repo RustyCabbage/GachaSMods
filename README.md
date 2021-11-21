@@ -1,6 +1,6 @@
 # Gacha S Mods
  
-Fixes all design issues with s-modding, 100% guaranteed. Ü
+Fixes all design issues with s-modding, 92% guaranteed. Ü
 
 ## Core Features
 - Creates two dummy 0 cost hullmods:
