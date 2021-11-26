@@ -20,7 +20,8 @@ import java.util.*;
 import static data.scripts.GachaSMods_ModPlugin.*;
 import static data.scripts.GachaSMods_Utils.*;
 
-// todo if you roll a hullmod you've got equipped it will tell you, lame
+// todo if you roll a hullmod you've got equipped it will be guessable, lame
+// todo can have more than max s-mods due to s-modding regular mods with >3 hullmods
 
 public class GachaSMods_randomSMod extends BaseHullMod {
 
@@ -186,6 +187,15 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // similarly, this is why we use ship.getVariant().getSMods().size() instead of Misc.getCurrSpecialMods(ship.getVariant)
             if (ship.getVariant().getSMods().size() >= Misc.getMaxPermanentMods(ship)) {
                 spec.addTag(Tags.HULLMOD_NO_BUILD_IN);
+                /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
+                if (ALLOW_STANDARD_SMODS && ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
+                    for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
+                        hullModSpec.addTag(Tags.HULLMOD_NO_BUILD_IN);
+                    } else {
+                        // have to find a way to block s-modding, but cancel it if the ship in question is fixed
+                    }
+                }
+                 */
             } else {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
