@@ -152,7 +152,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // in the case that the player cancels the s-mod process
             // the potential s-mods will become regular mods which must be removed
             if (!Collections.disjoint(variant.getNonBuiltInHullmods(), addedMods)) {
-                //log.info("S-modding cancelled");
+                log.info("S-modding cancelled");
                 for (String addedModId : addedMods) {
                     if (variant.getNonBuiltInHullmods().contains(addedModId)) {
                         variant.removeMod(addedModId); // todo: not sure if I need this
@@ -166,7 +166,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             }
             // need a way to clear the addedMods list when you confirm. to do so we check that story points were spent on s-modding
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
-                //log.info("S-modding confirmed");
+                log.info("S-modding confirmed");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
                 for (String addedModId : addedMods) {
                     restoreHullMod(addedModId); // as above, so below - fixing up changes made
@@ -199,6 +199,13 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             } else {
                 spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
             }
+            /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
+            // check if there are hidden s-mods
+            int numHiddenSMods = ship.getVariant().getSMods().size() - Misc.getCurrSpecialMods(ship.getVariant());
+            if (numHiddenSMods > 0) {
+                ship.getVariant().addPermaMod(HIDDEN_FIX_ID, false);
+            }
+             */
         }
     }
 

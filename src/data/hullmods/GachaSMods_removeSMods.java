@@ -147,7 +147,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // in the case that the player cancels the s-mod process, re-add the removed hullmods
         if (variant.getNonBuiltInHullmods().contains(spec.getId())) {
             if (variant.getNonBuiltInHullmods().contains(PLACEHOLDER_ID + "0")) {
-                //log.info("Cancelled s-mod removal");
+                log.info("Cancelled s-mod removal");
                 for (String removedModId : removedMods) {
                     variant.addPermaMod(removedModId, true);
                     //restoreHullMod(removedModId); // used in the "don't let hidden hullmods cost extra" code
@@ -165,7 +165,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
             }
             // check confirmation by number of story points
             if (Global.getSector().getPlayerPerson().getStats().getStoryPoints() < numSP) {
-                //log.info("Confirmed s-mod removal");
+                log.info("Confirmed s-mod removal");
                 numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
 
                 // it gets removed upon switching away to another ship, but will remain with any action that checks the variant
@@ -188,6 +188,13 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 savedSeed = random.nextLong();
                 Global.getSector().getPersistentData().put(seedKey, savedSeed);
             }
+            /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
+            // check if there are hidden s-mods
+            int numHiddenSMods = ship.getVariant().getSMods().size() - Misc.getCurrSpecialMods(ship.getVariant());
+            if (numHiddenSMods > 0) {
+                ship.getVariant().addPermaMod(HIDDEN_FIX_ID, false);
+            }
+             */
         }
     }
 

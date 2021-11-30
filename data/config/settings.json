@@ -85,6 +85,7 @@
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
+		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 
 		# Requested by Mayu:

@@ -21,7 +21,8 @@ public class GachaSMods_Utils {
     public static final String
             RANDOM_SMOD_ID = MOD_ID + "_" + "randomSMod",
             REMOVE_SMOD_ID = MOD_ID + "_" + "removeSMods",
-            PLACEHOLDER_ID = MOD_ID + "_" + "PLACEHOLDER";
+            PLACEHOLDER_ID = MOD_ID + "_" + "PLACEHOLDER",
+            HIDDEN_FIX_ID = MOD_ID + "_" + "hiddenHullModFix"; // todo find a way to make this work
     public static final Set<String> BLACKLISTED_HULLMODS = new HashSet<>(); // blacklisted hullmods
 
     public static String getString(String id) {
