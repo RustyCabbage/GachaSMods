@@ -2,9 +2,17 @@
 	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
 	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist)
     "GachaSMods_greylistedHullmods":[
-	### By mrmagalor#6567
-	"AL_boss_higgsworld",
-	"Knight_arrivalEnhance",
+        ### Requested by barackollama
+        # Starship legends
+        sun_sl_notable,
+        sun_sl_wellknown,
+        sun_sl_famous,
+        sun_sl_legendary,
+
+        ### By mrmagalor#6567
+        # approlight
+        "AL_boss_higgsworld",
+        "Knight_arrivalEnhance",
 	
         ### By President Matt Damon#0001
         # these don't do anything
@@ -62,7 +70,6 @@
         "automated_personality_steady",
         "automated_personality_aggressive",
         "automated_personality_reckless",
-        "automated_vent_80",		
-		
+        "automated_vent_80",
     ]
 }
