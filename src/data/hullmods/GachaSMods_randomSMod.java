@@ -106,6 +106,8 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 tempSeed = random.nextLong(); // shuffles to the next long every time the hullmod is s-modded.
                 saveData.put(tempSeedKey, tempSeed); // save to continue the chain
                 //log.info("Next seed " + tempSeed);
+            } else {
+                random = new Random(); // this shouldn't be necessary? but just in case
             }
             numSP = Global.getSector().getPlayerPerson().getStats().getStoryPoints();
             // dumb way to continue checks during confirmation screen, because otherwise the script stops when it's removed

@@ -75,6 +75,7 @@
 
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring
+		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
 		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
 		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
 		"apex_variable_warheads",				# java.lang.RuntimeException upon battle entry if the ship doesn't have a WS0015 and WS0016 weapon slot
@@ -85,6 +86,8 @@
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
+		"SCVE_integratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
+		"SCVE_disintegratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
