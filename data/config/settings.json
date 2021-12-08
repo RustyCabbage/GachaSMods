@@ -92,7 +92,7 @@
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 
-		# Requested by Mayu:
+		# Requested by Mayu. I don't ask questions.
 		"bbplus_sm_unstable",
 		"bbplus_sm_highgrade",
 		"bbplus_sm_lowgrade",
@@ -101,6 +101,19 @@
 		"bbplus_sm_lowgrade_dummy",
 		"bbplus_fluxdischarger",
 		"bbplus_mnemosyne_briar_hull",
+		"specialsphmod_beta_core_upgrades",
+		"specialsphmod_gamma_core_upgrades",
+		"specialsphmod_corruptednanoforge_upgrades",
+		"specialsphmod_pristinenanoforge_upgrades",
+		"specialsphmod_hypershunt_upgrades",
+		"specialsphmod_catalyticcore_upgrades",
+		"specialsphmod_plasmadynamo_upgrades",
+		"specialsphmod_cryoarithmeticengine_upgrades",
+		"specialsphmod_combatdronereplicator_upgrades",
+		"specialsphmod_synchrotoncore_upgrades",
+		"specialsphmod_soilnanites_upgrades",
+		"specialsphmod_mantlebore_upgrades",
+		"specialsphmod_fusionlampreactor_upgrades",
 	],
 	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
 	# Alternatively, as a mod author you can either add this same array "GachaSMods_blacklistedHullmods" to your mod
