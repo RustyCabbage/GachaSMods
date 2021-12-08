@@ -88,7 +88,8 @@
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
 		"SCVE_integratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_disintegratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
-		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker
+		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker)
+		"SKR_shield",							# java.lang.NullPointerException on non-shielded ships
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 
