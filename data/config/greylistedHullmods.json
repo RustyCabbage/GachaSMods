@@ -4,10 +4,12 @@
     "GachaSMods_greylistedHullmods":[
         ### Requested by barackollama
         # Starship legends
-        sun_sl_notable,
-        sun_sl_wellknown,
-        sun_sl_famous,
-        sun_sl_legendary,
+        "sun_sl_notable",
+        "sun_sl_wellknown",
+        "sun_sl_famous",
+        "sun_sl_legendary",
+        # Extra Systems Reloaded
+        "es_shiplevelHM",
 
         ### By mrmagalor#6567
         # approlight
