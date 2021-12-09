@@ -1,0 +1,20 @@
+{
+  # why are you here
+  "GachaSMods_weightMult": {
+    "specialsphmod_omega_lol": 0.01,
+    "specialsphmod_domain_libellum": 0.01,
+    "specialsphmod_lensing_article": 0.25,
+    "specialsphmod_exotic_shielding": 0.05,
+    "specialsphmod_heavy_ordnance": 0.25,
+    "specialsphmod_eutec_exploration": 0.05,
+    "specialsphmod_psyche_enhancer": 0.05,
+    "specialsphmod_quickened_loader": 0.25,
+    "specialsphmod_hga_logistics": 0.25,
+    "specialsphmod_dynamic_tuning": 0.25,
+    "specialsphmod_orionshipyards_designs": 0.25,
+    "specialsphmod_phase_conductor": 0.25,
+    "specialsphmod_quantum_theory": 0.25,
+    "specialsphmod_langelaan_field": 0.01,
+    "specialsphmod_redsuns_tuning": 0.25,
+  }
+}

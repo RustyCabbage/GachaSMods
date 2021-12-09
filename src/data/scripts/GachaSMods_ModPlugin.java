@@ -51,7 +51,10 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             TG_RARE3_MULT_SETTING = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare3Mult",
             TG_RARE4_MULT_SETTING = MOD_ID + "_" + TRUE_GACHA_CODE + "_" + "rare4Mult",
             MIN_REMOVED_SMODS_SETTING = MOD_ID + "_" + "minRemovedSMods",
-            MAX_REMOVED_SMODS_SETTING = MOD_ID + "_" + "maxRemovedSMods";
+            MAX_REMOVED_SMODS_SETTING = MOD_ID + "_" + "maxRemovedSMods",
+
+            SPECIAL_UPGRADES_MOD_ID = "mayu_specialupgrades",
+            SPECIAL_UPGRADES_URL = "";
     // setting to default values. overwritten on application and game load
     public static boolean
             LOADING_FAILED = true,
@@ -89,6 +92,12 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             if (hullModSpec.hasTag(Tags.HULLMOD_NO_BUILD_IN)) {
                 hullModSpec.addTag(RESPECT_NO_BUILD_IN_SETTING);
             }
+        }
+
+        if (Global.getSettings().getModManager().isModEnabled(SPECIAL_UPGRADES_MOD_ID)) {
+            System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
+            log.info(SPECIAL_UPGRADES_MOD_ID + " detected. Loading custom weights");
+            loadOnlineBlackList(ONLINE_BLACKLIST_URL, BLACKLISTED_HULLMODS_ARRAY, log);
         }
     }
 
