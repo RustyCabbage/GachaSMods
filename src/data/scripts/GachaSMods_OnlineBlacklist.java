@@ -12,12 +12,13 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Scanner;
 
-import static data.scripts.GachaSMods_ModPlugin.BLACKLISTED_HULLMODS_ARRAY;
 import static data.scripts.GachaSMods_Utils.BLACKLISTED_HULLMODS;
+import static data.scripts.GachaSMods_Utils.CUSTOM_WEIGHTS_MAP;
 
 public class GachaSMods_OnlineBlacklist {
 
     private final Logger log = Global.getLogger(GachaSMods_OnlineBlacklist.class);
+    private static String weightKey = "GachaSMods_weightMult";
 
     // Stole basically all of this from LazyWizard's Version Checker
     public static void loadOnlineBlackList(String url, String arrayKey, Logger log) {
@@ -30,6 +31,29 @@ public class GachaSMods_OnlineBlacklist {
                 BLACKLISTED_HULLMODS.add((String) array.get(i));
             }
             log.info("Loading from online list was successful");
+        } catch (MalformedURLException ex) {
+            log.error("Invalid URL \"" + url + "\"", ex);
+        } catch (IOException ex) {
+            log.error("Failed to load JSON file from URL \"" + url + "\"", ex);
+        } catch (JSONException ex) {
+            log.error("Malformed JSON in remote version file at URL \"" + url + "\"", ex);
+        }
+    }
+
+    // JSONObject instead
+    public static void loadOnlineWeightMults(String url, String objKey, Logger log) {
+        try {
+            InputStream stream = new URL(url).openStream();
+            Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
+            JSONObject settings = sanitizeJSON(scanner.next());
+            JSONObject idToWeightsObject = settings.getJSONObject(weightKey);
+            JSONArray hullModIdsArray = idToWeightsObject.names();
+            for (int i = 0; i < hullModIdsArray.length(); i++) {
+                String hullModId = hullModIdsArray.getString(i);
+                float weightMult = (float) idToWeightsObject.getDouble(hullModId);
+                CUSTOM_WEIGHTS_MAP.put(hullModId, weightMult);
+            }
+            log.info("Loading online weights was successful");
         } catch (MalformedURLException ex) {
             log.error("Invalid URL \"" + url + "\"", ex);
         } catch (IOException ex) {

@@ -54,7 +54,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             MAX_REMOVED_SMODS_SETTING = MOD_ID + "_" + "maxRemovedSMods",
 
             SPECIAL_UPGRADES_MOD_ID = "mayu_specialupgrades",
-            SPECIAL_UPGRADES_URL = "";
+            SPECIAL_UPGRADES_URL = "https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/src/data/hullmods/GachaSMods_customWeights.json";
     // setting to default values. overwritten on application and game load
     public static boolean
             LOADING_FAILED = true,

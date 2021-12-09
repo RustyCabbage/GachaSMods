@@ -2,6 +2,7 @@ package data.scripts;
 
 import com.fs.starfarer.api.Global;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ public class GachaSMods_Utils {
             PLACEHOLDER_ID = MOD_ID + "_" + "PLACEHOLDER",
             HIDDEN_FIX_ID = MOD_ID + "_" + "hiddenHullModFix"; // todo find a way to make this work
     public static final Set<String> BLACKLISTED_HULLMODS = new HashSet<>(); // blacklisted hullmods
+    public static final HashMap<String, Float> CUSTOM_WEIGHTS_MAP = new HashMap<>();
 
     public static String getString(String id) {
         return Global.getSettings().getString(MOD_ID, id);
