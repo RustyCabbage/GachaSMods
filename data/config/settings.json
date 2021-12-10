@@ -95,7 +95,7 @@
 	# Float. Default `15`.
 	# Multiplier for standard cost hullmods. Under vanilla & default settings, each standard hullmod has a ~0.5% chance of selection.
 
-	"GachaSMods_TG_rare4Mult": 1000007.5,
+	"GachaSMods_TG_rare4Mult": 7.5,
 	# Float. Default `7.5`.
 	# Multiplier for hidden hullmods.
 	# Under vanilla & default settings, from my count, there are 6 bad, 3 neutral, and 18 good hidden hullmods (may vary depending on e.g. phase ship status).
@@ -104,7 +104,7 @@
 	##########################
 ###### remove s-mod options ##
 	##########################
-	"GachaSMods_minRemovedSMods": 10,
+	"GachaSMods_minRemovedSMods": 1,
 	# Integer. Default `1`. Min `0`. Max `10`.
 	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward).
 	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
@@ -119,7 +119,7 @@
 ###### blacklist options ##
 	#######################
 
-	"GachaSMods_useGreylist": true,
+	"GachaSMods_useGreylist": false,
 	# Boolean. Default `false`.
 	# If true, will prevent loading any hullmods in greylistedHullmods.json
 	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
