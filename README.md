@@ -32,11 +32,12 @@ Fixes all design issues with s-modding, 92% guaranteed. Ü
 - Only Not Hidden Hullmods: will only roll hullmods that can be learned by the player (the usual modular ones)
 - Only Applicable Hullmods: will only roll hullmods that are normally applicable on the ship (so no Safety Overrides for capital ships)
 - Respect "no_build_in": will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides)
-- Blacklisted Hullmods: Want to not roll specific hullmods? Add their hullmod IDs here.
-- Use Greylist: will prevent loading any hullmods in greylistedHullmods.json (an optional, uncurated set of additional hullmods others have told me to not include)
 ### Selection Mode Options
 - Adjust the rarity of free and hidden hullmods in Proportional Mode.
 - Adjust the weights for the different categories in True Gacha Mode, and what counts as a "cheap" hullmod.
 ### Remove S-Mod Options
 - Min Removed S-Mods: Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward)
 - Max Removed S-Mods: Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in
+### Blacklist Options
+- Blacklisted Hullmods: Want to not roll specific hullmods? Add their hullmod IDs here.
+- Use Greylist: will prevent loading any hullmods in greylistedHullmods.json (an optional, uncurated set of additional hullmods others have told me to not include)
