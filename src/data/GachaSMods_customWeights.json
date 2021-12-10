@@ -1,20 +1,20 @@
 {
-  # why are you here
-  "GachaSMods_weightMult": {
-    "specialsphmod_omega_lol": 0.01,
-    "specialsphmod_domain_libellum": 0.01,
-    "specialsphmod_lensing_article": 0.25,
-    "specialsphmod_exotic_shielding": 0.05,
-    "specialsphmod_heavy_ordnance": 0.25,
-    "specialsphmod_eutec_exploration": 0.05,
-    "specialsphmod_psyche_enhancer": 0.05,
-    "specialsphmod_quickened_loader": 0.25,
-    "specialsphmod_hga_logistics": 0.25,
-    "specialsphmod_dynamic_tuning": 0.25,
-    "specialsphmod_orionshipyards_designs": 0.25,
-    "specialsphmod_phase_conductor": 0.25,
-    "specialsphmod_quantum_theory": 0.25,
-    "specialsphmod_langelaan_field": 0.01,
-    "specialsphmod_redsuns_tuning": 0.25,
-  }
+	# why are you here
+	"GachaSMods_weightMult": {
+		"specialsphmod_gacha_omega_lol": 0.03,
+		"specialsphmod_gacha_domain_libellum": 0.03,
+		"specialsphmod_gacha_lensing_article": 0.25,
+		"specialsphmod_gacha_exotic_shielding": 0.07,
+		"specialsphmod_gacha_heavy_ordnance": 0.25,
+		"specialsphmod_gacha_eutec_exploration": 0.07,
+		"specialsphmod_gacha_psyche_enhancer": 0.07,
+		"specialsphmod_gacha_quickened_loader": 0.25,
+		"specialsphmod_gacha_hga_logistics": 0.25,
+		"specialsphmod_gacha_dynamic_tuning": 0.25,
+		"specialsphmod_gacha_orionshipyards_designs": 0.25,
+		"specialsphmod_gacha_phase_conductor": 0.25,
+		"specialsphmod_gacha_quantum_theory": 0.25,
+		"specialsphmod_gacha_langelaan_field": 0.03,
+		"specialsphmod_gacha_redsuns_tuning": 0.25,
+	}
 }

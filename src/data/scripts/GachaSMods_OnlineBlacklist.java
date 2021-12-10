@@ -18,10 +18,10 @@ import static data.scripts.GachaSMods_Utils.CUSTOM_WEIGHTS_MAP;
 public class GachaSMods_OnlineBlacklist {
 
     private final Logger log = Global.getLogger(GachaSMods_OnlineBlacklist.class);
-    private static String weightKey = "GachaSMods_weightMult";
 
     // Stole basically all of this from LazyWizard's Version Checker
     public static void loadOnlineBlackList(String url, String arrayKey, Logger log) {
+        System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
         try {
             InputStream stream = new URL(url).openStream();
             Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
@@ -42,11 +42,12 @@ public class GachaSMods_OnlineBlacklist {
 
     // JSONObject instead
     public static void loadOnlineWeightMults(String url, String objKey, Logger log) {
+        System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
         try {
             InputStream stream = new URL(url).openStream();
             Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
             JSONObject settings = sanitizeJSON(scanner.next());
-            JSONObject idToWeightsObject = settings.getJSONObject(weightKey);
+            JSONObject idToWeightsObject = settings.getJSONObject(objKey);
             JSONArray hullModIdsArray = idToWeightsObject.names();
             for (int i = 0; i < hullModIdsArray.length(); i++) {
                 String hullModId = hullModIdsArray.getString(i);

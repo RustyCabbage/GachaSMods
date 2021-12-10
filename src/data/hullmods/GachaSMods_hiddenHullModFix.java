@@ -17,6 +17,11 @@ public class GachaSMods_hiddenHullModFix extends BaseHullMod {
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
         int numHiddenSMods = ship.getVariant().getSMods().size() - Misc.getCurrSpecialMods(ship.getVariant());
+        for (String hullModId : ship.getVariant().getSMods()) {
+            if (hullModId.startsWith(PLACEHOLDER_ID)) {
+                numHiddenSMods--;
+            }
+        }
         //log.info(String.format("Ship has %d hidden s-mods", numHiddenSMods));
         if (numHiddenSMods <= 0) {
             ship.getVariant().removePermaMod(spec.getId());

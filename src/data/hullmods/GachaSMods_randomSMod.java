@@ -122,11 +122,23 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 random = new Random();
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
                         false, false, false, false);
+                /*
+                // for debugging
+                for (String item : picker.getItems()) {
+                    log.info(item + ": " + picker.getWeight(item));
+                }
+                 */
                 chosenSModId = picker.pick(random);
             } else {
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
                         ONLY_KNOWN_HULLMODS, ONLY_NOT_HIDDEN_HULLMODS, ONLY_APPLICABLE_HULLMODS, RESPECT_NO_BUILD_IN);
                 chosenSModId = picker.pick(random);
+                /*
+                // for debugging
+                for (String item : picker.getItems()) {
+                    log.info(item + ": " + picker.getWeight(item));
+                }
+                 */
             }
             log.info("Picked " + chosenSModId);
             // if nothing is available for some reason...
@@ -478,6 +490,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     }
 
                     float weight = 1.0f / opCost;
+                    // custom weight mults, thanks Mayu!
+                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
+                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
+                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
+                        weight *= 0.001; // no cheating
+                    }
                     picker.add(hullModId, weight);
                 }
                 break;
@@ -552,27 +570,45 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     }
                 }
                 for (Map.Entry<String, Integer> hullModRarityMapEntry : hullModRarityMap.entrySet()) {
+                    String hullModId = hullModRarityMapEntry.getKey();
+                    float weight = 0;
                     switch (hullModRarityMapEntry.getValue()) {
                         case 1:
-                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE1_MULT / Math.max(numRare1, 1));
+                            weight = TG_RARE1_MULT / Math.max(numRare1, 1);
                             break;
                         case 2:
-                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE2_MULT / Math.max(numRare2, 1));
+                            weight = TG_RARE2_MULT / Math.max(numRare2, 1);
                             break;
                         case 3:
-                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE3_MULT / Math.max(numRare3, 1));
+                            weight = TG_RARE3_MULT / Math.max(numRare3, 1);
                             break;
                         case 4:
-                            picker.add(hullModRarityMapEntry.getKey(), TG_RARE4_MULT / Math.max(numRare4, 1));
+                            weight = TG_RARE4_MULT / Math.max(numRare4, 1);
                             break;
                         default:
                             log.error("Something broke: hullModRarityMapEntry.getValue()");
                             break;
                     }
+                    // custom weight mults, thanks Mayu!
+                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
+                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
+                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
+                        weight *= 0.001; // no cheating
+                    }
+                    picker.add(hullModRarityMapEntry.getKey(), weight);
                 }
                 break;
             default: // case "CL"
-                picker.addAll(validHullModIds);
+                for (String hullModId : validHullModIds) {
+                    float weight = 1f;
+                    // custom weight mults, thanks Mayu!
+                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
+                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
+                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
+                        weight *= 0.001; // no cheating
+                    }
+                    picker.add(hullModId, weight);
+                }
         }
         return picker;
     }

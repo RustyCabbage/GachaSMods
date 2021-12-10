@@ -1,6 +1,4 @@
 {
-	### NOTE: you have to restart the game in order for any changes to these settings to take effect
-	
 	#######################
 ###### v important stuff ##
 	#######################
@@ -26,7 +24,7 @@
 	# If true, hides the Random S-Mod hullmod and allows regular s-modding.
 	## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true (fun as it would be to block s-modding entirely :V).
 	## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
-	
+
 	"GachaSMods_disableRemoveSMods": false,
 	# Boolean. Default `false`.
 	# If true, hides the Remove S-Mod hullmod. TBH, the intended experience for the mod.
@@ -42,7 +40,7 @@
 	##########################
 	"GachaSMods_selectionMode": "CL",
 	# String. Default `CL`.
-	###  MODES: 
+	###  MODES:
 	# `CL`: Classic - Hullmods are selected with uniform probability of selection.
 	# `PR`: Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
 	# `TG`: True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
@@ -58,12 +56,12 @@
 	"GachaSMods_onlyKnownHullmods": false,
 	# Boolean. Default `false`.
 	# If true, will only roll hullmods known by the player.
-	
+
 	"GachaSMods_onlyNotHiddenHullmods": true,
 	# Boolean. Default `true`.
 	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
 	# If false, you can roll any hidden mod, including d-mods.
-	
+
 	"GachaSMods_onlyApplicableHullmods": true,
 	# Boolean. Default `true`.
 	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
@@ -73,6 +71,65 @@
 	# Boolean. Default `true`.
 	# If true, will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides).
 
+	############################
+###### selection mode options ##
+	############################
+	"GachaSMods_PR_incrForFreeOrHiddenMods": 20,
+	# Integer. Default `20`. Min `1`.
+	# In Proportional mode, for free or hidden hullmods, this value is added to their OP cost (adjusted for size: (1/2/3/5x)) to determine their weight.
+	# E.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150 under default settings.
+
+	"GachaSMods_TG_costForRare2": 3,
+	# Integer. Default `3`.
+	# In True Gacha mode, for a given non-dmod and non-hidden hullmod, if the OP cost <= this value (adjusted for size: (1/2/3/5x)), it is placed in RARE2, else RARE3.
+
+	"GachaSMods_TG_rare1Mult": 52.5,
+	# Float. Default `52.5`.
+	# Multiplier for d-mods. Under vanilla & default settings, each d-mod has a 2.5% chance of selection.
+
+	"GachaSMods_TG_rare2Mult": 25,
+	# Float. Default `25`.
+	# Multiplier for cheap hullmods. Under vanilla & default settings, each cheap hullmod has a ~1.5% chance of selection.
+
+	"GachaSMods_TG_rare3Mult": 15,
+	# Float. Default `15`.
+	# Multiplier for standard cost hullmods. Under vanilla & default settings, each standard hullmod has a ~0.5% chance of selection.
+
+	"GachaSMods_TG_rare4Mult": 1000007.5,
+	# Float. Default `7.5`.
+	# Multiplier for hidden hullmods.
+	# Under vanilla & default settings, from my count, there are 6 bad, 3 neutral, and 18 good hidden hullmods (may vary depending on e.g. phase ship status).
+	# Hence, you have a 5% chance of getting a beneficial hullmod and a 1.67% chance of getting a bad hidden hullmod (each one has a 0.27% chance of selection).
+
+	##########################
+###### remove s-mod options ##
+	##########################
+	"GachaSMods_minRemovedSMods": 10,
+	# Integer. Default `1`. Min `0`. Max `10`.
+	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward).
+	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
+
+	"GachaSMods_maxRemovedSMods": 3,
+	# Integer. Default `3`. Min `0`. Max `10`.
+	# Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in.
+	# Hard limit of 10 or else something will break.
+	# If it's less than minRemovedSMods, it'll be set equal to the min and I'll be mad at you >:(
+
+	#######################
+###### blacklist options ##
+	#######################
+
+	"GachaSMods_useGreylist": true,
+	# Boolean. Default `false`.
+	# If true, will prevent loading any hullmods in greylistedHullmods.json
+	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
+	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist), hence this setting is off by default.
+	# If "GachaSMods_useOnlineBlacklist" is true, it will load the greylist from the GitHub source as well:
+	# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/greylistedHullmods.json
+
+	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
+	# Alternatively, as a mod author you can either add this same array "GachaSMods_blacklistedHullmods" to your mod
+		# or send me a note with hullmods you'd like to blacklist and I'll update this list with your hullmods.
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring
 		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
@@ -102,6 +159,7 @@
 		"bbplus_sm_lowgrade_dummy",
 		"bbplus_fluxdischarger",
 		"bbplus_mnemosyne_briar_hull",
+		"specialsphmod_alpha_core_upgrades",
 		"specialsphmod_beta_core_upgrades",
 		"specialsphmod_gamma_core_upgrades",
 		"specialsphmod_corruptednanoforge_upgrades",
@@ -116,59 +174,4 @@
 		"specialsphmod_mantlebore_upgrades",
 		"specialsphmod_fusionlampreactor_upgrades",
 	],
-	# Tell me whenever you notice a modded hullmod that is either game breaking or causes crashes and I'll update the list.
-	# Alternatively, as a mod author you can either add this same array "GachaSMods_blacklistedHullmods" to your mod
-		# or send me a note with hullmods you'd like to blacklist and I'll update this list with your hullmods.
-
-	"GachaSMods_useGreylist": false,
-	# Boolean. Default `false`.
-	# If true, will prevent loading any hullmods in greylistedHullmods.json
-	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
-	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist), hence this setting is off by default.
-	# If "GachaSMods_useOnlineBlacklist" is true, it will load the greylist from the GitHub source as well:
-	# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/greylistedHullmods.json
-
-	############################
-###### selection mode options ##
-	############################
-	"GachaSMods_PR_incrForFreeOrHiddenMods": 20,
-	# Integer. Default `20`. Min `1`.
-	# In Proportional mode, for free or hidden hullmods, this value is added to their OP cost (adjusted for size: (1/2/3/5x)) to determine their weight.
-	# E.g. Flux Shunt on a capital ship has weight 1/(50+20*5) = 1/150 under default settings.
-
-	"GachaSMods_TG_costForRare2": 3,
-	# Integer. Default `3`.
-	# In True Gacha mode, for a given non-dmod and non-hidden hullmod, if the OP cost < this value (adjusted for size: (1/2/3/5x)), it is placed in RARE2, else RARE3.
-
-	"GachaSMods_TG_rare1Mult": 52.5,
-	# Float. Default `52.5`.
-	# Multiplier for d-mods. Under vanilla & default settings, each d-mod has a 2.5% chance of selection.
-
-	"GachaSMods_TG_rare2Mult": 25,
-	# Float. Default `25`.
-	# Multiplier for cheap hullmods. Under vanilla & default settings, each cheap hullmod has a ~1.5% chance of selection.
-
-	"GachaSMods_TG_rare3Mult": 15,
-	# Float. Default `15`.
-	# Multiplier for standard cost hullmods. Under vanilla & default settings, each standard hullmod has a ~0.5% chance of selection.
-
-	"GachaSMods_TG_rare4Mult": 7.5,
-	# Float. Default `7.5`.
-	# Multiplier for hidden hullmods.
-	# Under vanilla & default settings, from my count, there are 6 bad, 3 neutral, and 18 good hidden hullmods (may vary depending on e.g. phase ship status).
-	# Hence, you have a 5% chance of getting a beneficial hullmod and a 1.67% chance of getting a bad hidden hullmod (each one has a 0.27% chance of selection).
-
-	##########################
-###### remove s-mod options ##
-	##########################
-	"GachaSMods_minRemovedSMods": 1,
-	# Integer. Default `1`. Min `0`. Max `10`.
-	# Sets the minimum number of s-mods that can be randomly removed whenever Remove S-Mods is built in (set it to 0, coward).
-	# Be gentle (uwu), I tried to catch every conceivable way you could break this but I might not have gotten everything.
-
-	"GachaSMods_maxRemovedSMods": 3,
-	# Integer. Default `3`. Min `0`. Max `10`.
-	# Sets the maximum number of s-mods that can be randomly removed whenever Remove S-Mods is built in.
-	# Hard limit of 10 or else something will break.
-	# If it's less than minRemovedSMods, it'll be set equal to the min and I'll be mad at you >:(
 }
