@@ -39,6 +39,7 @@ public class GachaSMods_removeSMods extends BaseHullMod {
         // todo: the numbers still seem to be slightly off when it's a hidden mod
         // todo: it tells you how many mods are removed if they're all hidden mods
         // todo: but I guess it's still fine if there are a mix? no because you can calc from number of story points
+        // todo: maybe if I convert all hidden hullmods to unhidden during the selection phase...
         // if the ship's at the max number of s-mods, add 1 to the max so you can s-mod this one
         // can't remember why the placeholder stuff, but it was important
         if ((ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship)
@@ -188,13 +189,18 @@ public class GachaSMods_removeSMods extends BaseHullMod {
                 savedSeed = random.nextLong();
                 Global.getSector().getPersistentData().put(seedKey, savedSeed);
             }
-            /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
             // check if there are hidden s-mods
-            int numHiddenSMods = ship.getVariant().getSMods().size() - Misc.getCurrSpecialMods(ship.getVariant());
-            if (numHiddenSMods > 0) {
-                ship.getVariant().addPermaMod(HIDDEN_FIX_ID, false);
+            int numHiddenSMods = variant.getSMods().size() - Misc.getCurrSpecialMods(variant);
+            for (String sModId : variant.getSMods()) {
+                if (sModId.startsWith(PLACEHOLDER_ID)) {
+                    numHiddenSMods--;
+                }
             }
-             */
+            if (numHiddenSMods > 0) {
+                variant.addPermaMod(HIDDEN_FIX_ID, false);
+            } else {
+                variant.removePermaMod(HIDDEN_FIX_ID);
+            }
         }
     }
 

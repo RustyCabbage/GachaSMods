@@ -47,12 +47,12 @@ public class GachaSMods_OnlineBlacklist {
             InputStream stream = new URL(url).openStream();
             Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
             JSONObject settings = sanitizeJSON(scanner.next());
-            JSONObject idToWeightsObject = settings.getJSONObject(objKey);
-            JSONArray hullModIdsArray = idToWeightsObject.names();
-            for (int i = 0; i < hullModIdsArray.length(); i++) {
-                String hullModId = hullModIdsArray.getString(i);
-                float weightMult = (float) idToWeightsObject.getDouble(hullModId);
-                CUSTOM_WEIGHTS_MAP.put(hullModId, weightMult);
+            JSONObject classToWeightsObject = settings.getJSONObject(objKey);
+            JSONArray effectClassArray = classToWeightsObject.names();
+            for (int i = 0; i < effectClassArray.length(); i++) {
+                String effectClass = effectClassArray.getString(i);
+                float weightMult = (float) classToWeightsObject.getDouble(effectClass);
+                CUSTOM_WEIGHTS_MAP.put(effectClass, weightMult);
             }
             log.info("Loading online weights was successful");
         } catch (MalformedURLException ex) {

@@ -21,7 +21,7 @@ import static data.scripts.GachaSMods_ModPlugin.*;
 import static data.scripts.GachaSMods_Utils.*;
 
 // todo if you roll a hullmod you've got equipped it will be guessable, lame
-// todo can have more than max s-mods due to s-modding regular mods with >3 hullmods
+// todo i think there's a ghost bug where a hidden hullmod wasn't being reset but I can't replicate so ignoring for now
 
 public class GachaSMods_randomSMod extends BaseHullMod {
 
@@ -122,12 +122,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 random = new Random();
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
                         false, false, false, false);
-                /*
+
                 // for debugging
                 for (String item : picker.getItems()) {
                     log.info(item + ": " + picker.getWeight(item));
                 }
-                 */
+
                 chosenSModId = picker.pick(random);
             } else {
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
@@ -196,47 +196,23 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 // the inconsistency is probably more annoying than just leaving the hullmod there, so commented out it is
                 // variant.removeMod(spec.getId());
             }
-            // blocks the s-modding process if you've reached the max amount
-            // this is necessary because hidden mods don't count towards the s-mod limit
-            // similarly, this is why we use ship.getVariant().getSMods().size() instead of Misc.getCurrSpecialMods(ship.getVariant)
-            if (ship.getVariant().getSMods().size() >= Misc.getMaxPermanentMods(ship)) {
-                spec.addTag(Tags.HULLMOD_NO_BUILD_IN);
-                /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
-                if (ALLOW_STANDARD_SMODS && ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
-                    for (HullModSpecAPI hullModSpec : Global.getSettings().getAllHullModSpecs()) {
-                        hullModSpec.addTag(Tags.HULLMOD_NO_BUILD_IN);
-                    } else {
-                        // have to find a way to block s-modding, but cancel it if the ship in question is fixed
-                    }
-                }
-                 */
-            } else {
-                spec.getTags().remove(Tags.HULLMOD_NO_BUILD_IN);
-            }
-            /* todo block additional s-modding if we ever detect a ship with over-max hullmods due to allowing regular s-modding
             // check if there are hidden s-mods
-            int numHiddenSMods = ship.getVariant().getSMods().size() - Misc.getCurrSpecialMods(ship.getVariant());
-            if (numHiddenSMods > 0) {
-                ship.getVariant().addPermaMod(HIDDEN_FIX_ID, false);
+            int numHiddenSMods = variant.getSMods().size() - Misc.getCurrSpecialMods(variant);
+            for (String sModId : variant.getSMods()) {
+                if (sModId.startsWith(PLACEHOLDER_ID)) {
+                    numHiddenSMods--;
+                }
             }
-             */
+            if (numHiddenSMods > 0) {
+                variant.addPermaMod(HIDDEN_FIX_ID, false);
+            } else {
+                variant.removePermaMod(HIDDEN_FIX_ID);
+            }
         }
     }
 
     @Override
     public boolean isApplicableToShip(ShipAPI ship) {
-        if (ship.getVariant().getSMods().size() > Misc.getMaxPermanentMods(ship)) {
-            return false;
-        }
-        // prevent re-adding when it's at the exact amount
-        // old comment:
-        // // apparently if !isApplicableToShip, variant.addMod() does not work
-        // // so this separate rule was needed if you would hit the max # of s-mods, blocking the re-installation of the hullmod
-        // // and thereby blocking the checking mechanism
-        // todo: this maybe wasn't the actual cause of the issue, but I don't know what it was, and I don't really care to find out since it works like this
-        if (ship.getVariant().getSMods().size() == Misc.getMaxPermanentMods(ship) && !ship.getVariant().hasHullMod(spec.getId())) {
-            return false;
-        }
         return !shipHasOtherModInCategory(ship, spec.getId(), MOD_ID);
     }
 
@@ -445,6 +421,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         return otherMods;
     }
 
+    // todo: swap order so that for (String hullModId : validHullModIds) { ... } only happens once
     public static WeightedRandomPicker<String> populatePicker(String mode, Random random, ShipAPI ship, boolean onlyKnownHullmods,
                                                               boolean onlyNotHiddenHullmods, boolean onlyApplicableHullmods, boolean respectNoBuildIn) {
         ShipAPI.HullSize hullSize = ship.getHullSize();
@@ -490,12 +467,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                     }
 
                     float weight = 1.0f / opCost;
-                    // custom weight mults, thanks Mayu!
-                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
-                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
-                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
-                        weight *= 0.001; // no cheating
-                    }
+                    weight *= getWeightMultiplier(hullModSpec);
                     picker.add(hullModId, weight);
                 }
                 break;
@@ -571,6 +543,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 }
                 for (Map.Entry<String, Integer> hullModRarityMapEntry : hullModRarityMap.entrySet()) {
                     String hullModId = hullModRarityMapEntry.getKey();
+                    HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
                     float weight = 0;
                     switch (hullModRarityMapEntry.getValue()) {
                         case 1:
@@ -589,24 +562,15 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                             log.error("Something broke: hullModRarityMapEntry.getValue()");
                             break;
                     }
-                    // custom weight mults, thanks Mayu!
-                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
-                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
-                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
-                        weight *= 0.001; // no cheating
-                    }
+                    weight *= getWeightMultiplier(hullModSpec);
                     picker.add(hullModRarityMapEntry.getKey(), weight);
                 }
                 break;
             default: // case "CL"
                 for (String hullModId : validHullModIds) {
+                    HullModSpecAPI hullModSpec = Global.getSettings().getHullModSpec(hullModId);
                     float weight = 1f;
-                    // custom weight mults, thanks Mayu!
-                    if (CUSTOM_WEIGHTS_MAP.containsKey(hullModId)) {
-                        weight *= CUSTOM_WEIGHTS_MAP.get(hullModId);
-                    } else if (hullModId.startsWith(SPECIAL_UPGRADES_PREFIX)) {
-                        weight *= 0.001; // no cheating
-                    }
+                    weight *= getWeightMultiplier(hullModSpec);
                     picker.add(hullModId, weight);
                 }
         }
@@ -655,5 +619,22 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             }
         }
         return validHullModIds;
+    }
+
+    private static float getWeightMultiplier(HullModSpecAPI hullModSpec) {
+        // custom weight mults, thanks Mayu!
+        float mult = 1f;
+        if (CUSTOM_WEIGHTS_MAP.containsKey(hullModSpec.getEffectClass())) {
+            mult = CUSTOM_WEIGHTS_MAP.get(hullModSpec.getEffectClass());
+        } else if (hullModSpec.getEffectClass().startsWith(SPECIAL_UPGRADES_CLASS_PREFIX)) {
+            mult = 0.001f; // no cheating
+            log.info("----------------------------------");
+            log.info("unregistered rare hullmod detected");
+            log.info(hullModSpec.getEffectClass());
+            log.info("not found in");
+            log.info(CUSTOM_WEIGHTS_MAP);
+            log.info("----------------------------------");
+        }
+        return mult;
     }
 }
