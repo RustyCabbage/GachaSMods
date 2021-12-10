@@ -122,12 +122,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 random = new Random();
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
                         false, false, false, false);
-
+                /*
                 // for debugging
                 for (String item : picker.getItems()) {
                     log.info(item + ": " + picker.getWeight(item));
                 }
-
+                */
                 chosenSModId = picker.pick(random);
             } else {
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
