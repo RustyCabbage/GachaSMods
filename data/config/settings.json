@@ -143,11 +143,16 @@
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
+		"LuddEnhance_ShieldBlock",				# java.lang.NullPointerException on shielded ships
 		"SCVE_integratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_disintegratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
+		"SCVE_addofficer",						# Isn't crashing but instantly removes itself which feels weird when used
+		"SCVE_removeofficer",					# Isn't crashing but instantly removes itself which feels weird when used
+		"SCVE_officerdetails",					# Isn't crashing but instantly removes itself which feels weird when used
 		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker)
 		"SKR_shield",							# java.lang.NullPointerException on non-shielded ships
 		"sw_reflective_shield",					# CTDs with Shield Shunt
+		"vic_dynamicShields",					# java.lang.NullPointerException on non-shielded ships
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 
 		# Requested by Mayu. I don't ask questions.
@@ -173,5 +178,8 @@
 		"specialsphmod_soilnanites_upgrades",
 		"specialsphmod_mantlebore_upgrades",
 		"specialsphmod_fusionlampreactor_upgrades",
+
+		# Requested by Techpriest
+		"eis_happybirthday",
 	],
 }

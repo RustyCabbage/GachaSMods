@@ -2,6 +2,9 @@
 	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
 	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist)
     "GachaSMods_greylistedHullmods":[
+        #Luddic Enhancement Mod
+        "LE_IncompatibleHullmodWarning",
+
         ### Requested by barackollama
         # Starship legends
         "sun_sl_notable",
@@ -12,7 +15,7 @@
         "es_shiplevelHM",
 
         ### By mrmagalor#6567
-        # approlight
+        # ApproLight
         "AL_boss_higgsworld",
         "Knight_arrivalEnhance",
 	
