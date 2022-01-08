@@ -2,6 +2,22 @@
 	# "greylistedHullmods.json" is a file with a list of hullmods others have suggested should be removed since they don't do anything but otherwise don't cause issues.
 	# I'll provide and update that list if you have suggestions, but I won't be curating it (unlike with the blacklist)
     "GachaSMods_greylistedHullmods":[
+	### Mayu is bullying me :(
+	# Coom Crews
+	"CHM_commission",
+	"CHM_commission2",
+	"CHM_hegemony",
+	"CHM_persean_league",
+	"CHM_tritachyon",
+	"CHM_sindrian",
+	"CHM_pirate",
+	"CHM_luddic_church",
+	"CHM_pather",
+	"CHM_alliance",
+	"CHM_alliance2",
+	"CHM_alliance3",
+
+	    
         #Luddic Enhancement Mod
         "LE_IncompatibleHullmodWarning",
 
@@ -39,11 +55,6 @@
         "armaa_selector_ppc",
         "alwaysburn",
         "armaa_melee",
-        "CHM_commission",
-        "CHM_commission2",
-        "CHM_alliance",
-        "CHM_alliance2",
-        "CHM_alliance3",
         "diableavionics_tuning",
         "diableavionics_selector_auto",
         "diableavionics_selector_burst",
