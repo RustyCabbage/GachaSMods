@@ -144,6 +144,7 @@
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
 		"LuddEnhance_ShieldBlock",				# java.lang.NullPointerException on shielded ships
+		"prv_flickercore",						# java.lang.NullPointerException (probably on non-phase ships?)
 		"SCVE_integratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_disintegratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_addofficer",						# Isn't crashing but instantly removes itself which feels weird when used
@@ -154,6 +155,7 @@
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"tahlan_outcast_engineering",			# java.lang.NullPointerException on non-shielded ships
 		"vic_dynamicShields",					# java.lang.NullPointerException on non-shielded ships
+		"vic_convoyDrive",						# java.lang.NullPointerException on non-VIC ships
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 
 		# Requested by Mayu. I don't ask questions.
