@@ -132,12 +132,15 @@
 		# or send me a note with hullmods you'd like to blacklist and I'll update this list with your hullmods.
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring
-		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
-		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
-		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
+		"AL_plugforboss",						# (ApproLight) breaks CR recovery near coronas
 		"apex_variable_warheads",				# java.lang.RuntimeException upon battle entry if the ship doesn't have a WS0015 and WS0016 weapon slot
 		"apex_spectrum_cargo",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
 		"apex_spectrum_fuel",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
+		"boosterUnit"							# (ArmA) NPE
+		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
+		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
+		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
+		"ass_from_ashes",						# (Arthr's Ships n Shit) NPE
 		"diableavionics_virtuousMasterHullmod", # java.lang.NullPointerException
 		"diableavionics_tuning",				# java.lang.NullPointerException (I think - that's what happens when you miss a weapon slot, right?)
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
