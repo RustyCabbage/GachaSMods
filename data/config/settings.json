@@ -141,6 +141,7 @@
 		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
 		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
 		"ass_from_ashes",						# (Arthr's Ships n Shit) NPE
+		"ass_phase_alwayson",					#
 		"diableavionics_virtuousMasterHullmod", # java.lang.NullPointerException
 		"diableavionics_tuning",				# java.lang.NullPointerException (I think - that's what happens when you miss a weapon slot, right?)
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
@@ -157,6 +158,7 @@
 		"SKR_shield",							# java.lang.NullPointerException on non-shielded ships
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"tahlan_outcast_engineering",			# java.lang.NullPointerException on non-shielded ships
+		"tahlan_KnightRefit",					# NPE
 		"vic_dynamicShields",					# java.lang.NullPointerException on non-shielded ships
 		"vic_convoyDrive",						# java.lang.NullPointerException on non-VIC ships
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
