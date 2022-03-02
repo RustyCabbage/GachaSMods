@@ -136,7 +136,7 @@
 		"apex_variable_warheads",				# java.lang.RuntimeException upon battle entry if the ship doesn't have a WS0015 and WS0016 weapon slot
 		"apex_spectrum_cargo",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
 		"apex_spectrum_fuel",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
-		"boosterUnit"							# (ArmA) NPE
+		"boosterUnit",							# (ArmA) NPE
 		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
 		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
 		"variawep",								# (ArmA) I don't know what the heck this does, but it broke everything lmao
@@ -149,6 +149,7 @@
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
 		"LuddEnhance_ShieldBlock",				# java.lang.NullPointerException on shielded ships
 		"prv_flickercore",						# java.lang.NullPointerException (probably on non-phase ships?)
+		"Roider_HeavyArmor",					# NPE line 44 (i'll need to check this some day xd)
 		"SCVE_integratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_disintegratehullmod",				# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_addofficer",						# Isn't crashing but instantly removes itself which feels weird when used
