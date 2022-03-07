@@ -160,7 +160,7 @@
 		"sw_reflective_shield",					# CTDs with Shield Shunt
 		"tahlan_outcast_engineering",			# java.lang.NullPointerException on non-shielded ships
 		"tahlan_KnightRefit",					# NPE
-		"vic_dynamicShields",					# java.lang.NullPointerException on non-shielded ships
+		"vic_dynamicshields",					# java.lang.NullPointerException on non-shielded ships
 		"vic_convoyDrive",						# java.lang.NullPointerException on non-VIC ships
 		"ae_fluxgenerator",						# I could not reproduce this but I'm told that it can cause crashes. Disable at your own risk.
 
