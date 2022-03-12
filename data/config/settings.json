@@ -136,6 +136,7 @@
 		"apex_variable_warheads",				# java.lang.RuntimeException upon battle entry if the ship doesn't have a WS0015 and WS0016 weapon slot
 		"apex_spectrum_cargo",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
 		"apex_spectrum_fuel",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
+		"armaa_wingCommander",					# tim told gettag to me to do it
 		"boosterUnit",							# (ArmA) NPE
 		"cataphract",							# (ArmA) java.lang.NullPointerException on mouseover
 		"cataphractBonus",						# (ArmA) java.lang.NullPointerException on mouseover
