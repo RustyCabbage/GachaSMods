@@ -156,6 +156,7 @@
 		"SCVE_addofficer",						# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_removeofficer",					# Isn't crashing but instantly removes itself which feels weird when used
 		"SCVE_officerdetails",					# Isn't crashing but instantly removes itself which feels weird when used
+	        "SKR_plagueWarning",
 		"SKR_siegfriedLoadout",					# java.lang.StringIndexOutOfBoundsException (gotta confirm but I don't have latest Seeker)
 		"SKR_shield",							# java.lang.NullPointerException on non-shielded ships
 		"sw_reflective_shield",					# CTDs with Shield Shunt
