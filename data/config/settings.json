@@ -191,5 +191,28 @@
 
 		# Requested by Techpriest
 		"eis_happybirthday",
+
+		# Requested by Yunru
+		"yunru_install_confirm",
+		"yunru_automation",
+		"yunru_install_gamma",
+		"yunru_install_beta",
+		"yunru_install_alpha",
+		"yunru_arr",
+		"yunru_fast_fire_missiles",
+		"yunru_ai_targeting",
+		"yunru_aiecm",
+		"yunru_phasedive",
+		"yunru_remote_fighters",
+		"yunru_ai_energy",
+		"yunru_quickstart",
+		"yunru_dynamic_shield_tuning",
+		"yunru_dst_incompat",
+		"yunru_qs_alpha",
+		"yunru_qs_beta",
+		"yunru_qs_gamma",
+		"yunru_dst_a",
+		"yunru_dst_b",
+		"yunru_dst_c",
 	],
 }
