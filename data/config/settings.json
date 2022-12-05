@@ -216,5 +216,13 @@
 		"yunru_dst_a",
 		"yunru_dst_b",
 		"yunru_dst_c",
+		
+		# Requested by Alex Sans
+		"SunriderRyuvianAfterburners",
+		"SunriderRyuvianEngineering",
+		"SunriderShortRangeWarp",
+		"SunriderCeranEngineering",
+		"SunriderSickBay",
+		"sh_TemporalTermination",
 	],
 }
