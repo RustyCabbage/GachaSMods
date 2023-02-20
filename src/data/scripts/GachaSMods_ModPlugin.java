@@ -19,7 +19,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Iterator;
 
-import static data.scripts.GachaSMods_OnlineBlacklist.*;
+import static data.scripts.GachaSMods_OnlineBlacklist.loadOnlineBlackList;
+import static data.scripts.GachaSMods_OnlineBlacklist.loadOnlineWeightMults;
 import static data.scripts.GachaSMods_Utils.*;
 
 public class GachaSMods_ModPlugin extends BaseModPlugin {
@@ -54,7 +55,6 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             MAX_REMOVED_SMODS_SETTING = MOD_ID + "_" + "maxRemovedSMods",
             CUSTOM_WEIGHTS = MOD_ID + "_" + "weightMult",
             CUSTOM_WEIGHTS_URL = "https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/src/data/GachaSMods_customWeights.json",
-
             SPECIAL_UPGRADES_MOD_ID = "mayu_specialupgrades",
             SPECIAL_UPGRADES_CLASS_PREFIX = "data.hullmods.SPGACHA";
 
@@ -145,6 +145,9 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
         // check for ships in storage / sold to markets
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             for (SubmarketAPI submarket : market.getSubmarketsCopy()) {
+                if (submarket.getCargo().getMothballedShips() == null) {
+                    continue;
+                }
                 for (FleetMemberAPI m : submarket.getCargo().getMothballedShips().getMembersListCopy()) {
                     Iterator<String> hullMods = m.getVariant().getHullMods().iterator();
                     while (hullMods.hasNext()) {

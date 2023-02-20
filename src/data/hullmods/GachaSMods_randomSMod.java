@@ -55,7 +55,6 @@ public class GachaSMods_randomSMod extends BaseHullMod {
 
     @Override
     public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
-
         // initialize all these dumb variables
         ShipVariantAPI variant = ship.getVariant();
         Map<String, Object> saveData = Global.getSector().getPersistentData();
@@ -65,6 +64,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
         long savedSeed = random.nextLong();
         long tempSeed = savedSeed;
         boolean shouldLoadSeed;
+
+        //frick u tim
+        if (!ship.getVariant().getHullMods().toArray()[ship.getVariant().getHullMods().size() - 1].toString().equals(spec.getId())) {
+            ship.getVariant().removeMod(spec.getId());
+            ship.getVariant().addMod(spec.getId());
+        }
 
         // this stuff should only have a unique result once per ship so shouldn't cause any issues
         if (ship.getFleetMemberId() != null) {
@@ -91,7 +96,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
             // 2. s-modding one at a time has the same effect as s-modding everything at once
             // 3. s-modding is consistent when taking the hullmod on/off and stuff
             //    (so it can only update when in the process of s-modding so there's a bunch of ugly initialization stuff)
-            if (NO_SAVE_SCUMMING) {
+            if (NO_SAVE_SCUMMING && !TRUE_RANDOM) {
                 savedSeed = getSeed(ship, seedKey);
                 // replace temp seed with the saved seed if told to (i.e. just after a cancellation process), else continue the temp seed chain
                 shouldLoadSeed = (boolean) saveData.get(loadKey);
