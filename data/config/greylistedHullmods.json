@@ -16,7 +16,6 @@
 	"CHM_alliance",
 	"CHM_alliance2",
 	"CHM_alliance3",
-
 	    
         #Luddic Enhancement Mod
         "LE_IncompatibleHullmodWarning",
@@ -34,6 +33,10 @@
         # ApproLight
         "AL_boss_higgsworld",
         "Knight_arrivalEnhance",
+	"goat_missile_switching_h",
+	"goat_missile_switching_k",
+	"goat_compact_cabin",
+	"goat_stress_dispersion",
 	
         ### By President Matt Damon#0001
         # these don't do anything
