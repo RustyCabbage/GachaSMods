@@ -132,7 +132,7 @@
 		# or send me a note with hullmods you'd like to blacklist and I'll update this list with your hullmods.
 	"GachaSMods_blacklistedHullmods":[
 		"vastbulk",								# breaks AI and is boring
-		"AIRetrofit_AIretrofit",				# NPE
+		"AIretrofit_airetrofit",				# NPE
 		"AL_plugforboss",						# (ApproLight) breaks CR recovery near coronas
 		"apex_variable_warheads",				# java.lang.RuntimeException upon battle entry if the ship doesn't have a WS0015 and WS0016 weapon slot
 		"apex_spectrum_cargo",					# java.lang.RuntimeException if rolled on a not apex_spectrum ship
