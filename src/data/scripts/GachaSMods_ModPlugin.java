@@ -290,7 +290,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             for (int i = 0; i < array.length(); i++) {
                 BLACKLISTED_HULLMODS.add((String) array.get(i));
             }
-            //log.info("Blacklisted hullmods: " + BLACKLISTED_HULLMODS);
+            log.info("Blacklisted hullmods: " + BLACKLISTED_HULLMODS);
 
             attemptingToLoad = USE_GREYLIST_SETTING;
             log.info("Attempting to load " + attemptingToLoad + ": " + settings.getBoolean(attemptingToLoad));

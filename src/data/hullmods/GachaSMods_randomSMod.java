@@ -127,8 +127,7 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 random = new Random();
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
                         false, false, false, false);
-                /*
-                // for debugging
+                /* for debugging
                 for (String item : picker.getItems()) {
                     log.info(item + ": " + picker.getWeight(item));
                 }
@@ -136,10 +135,12 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                 chosenSModId = picker.pick(random);
             } else {
                 WeightedRandomPicker<String> picker = populatePicker(SELECTION_MODE, random, ship,
-                        ONLY_KNOWN_HULLMODS, ONLY_NOT_HIDDEN_HULLMODS, ONLY_APPLICABLE_HULLMODS, RESPECT_NO_BUILD_IN);
+                        ONLY_KNOWN_HULLMODS,
+                        ONLY_NOT_HIDDEN_HULLMODS,
+                        ONLY_APPLICABLE_HULLMODS,
+                        RESPECT_NO_BUILD_IN);
                 chosenSModId = picker.pick(random);
-                /*
-                // for debugging
+                /* for debugging
                 for (String item : picker.getItems()) {
                     log.info(item + ": " + picker.getWeight(item));
                 }
@@ -594,12 +595,16 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
                         || hullModSpec.isHiddenEverywhere() // you can't tell when you have it, so it causes problems
                         || hullModId.startsWith(MOD_ID) // part of the mod
-                        || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
+
                         || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled
                         || (respectNoBuildIn && hullModSpec.hasTag(RESPECT_NO_BUILD_IN_SETTING))
                         || BLACKLISTED_HULLMODS.contains(hullModId) // blacklisted
                 ) {
                     continue;
+                }
+                // done after because of potential crashes
+                if (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) {
+                    continue; // not applicable for ship and setting enabled)
                 }
                 validHullModIds.add(hullModId);
                 //log.info(hullModId + " added to picker");
@@ -612,17 +617,21 @@ public class GachaSMods_randomSMod extends BaseHullMod {
                         || variant.getHullSpec().getBuiltInMods().contains(hullModId) // built into the hull
                         || hullModSpec.isHiddenEverywhere() // you can't tell when you have it, so it causes problems
                         || hullModId.startsWith(MOD_ID) // part of the mod
-                        || (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) // not applicable for ship and setting enabled
                         || (onlyNotHiddenHullmods && hullModSpec.isHidden()) // not hidden and setting enabled
                         || (respectNoBuildIn && hullModSpec.hasTag(RESPECT_NO_BUILD_IN_SETTING))
                         || BLACKLISTED_HULLMODS.contains(hullModId) // blacklisted
                 ) {
                     continue;
                 }
+                // done after because of potential crashes
+                if (onlyApplicableHullmods && !hullModSpec.getEffect().isApplicableToShip(ship)) {
+                    continue; // not applicable for ship and setting enabled)
+                }
                 validHullModIds.add(hullModId);
                 //log.info(hullModId + " added to picker");
             }
         }
+        log.info("Valid hull mods: " + validHullModIds);
         return validHullModIds;
     }
 
