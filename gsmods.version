@@ -7,7 +7,7 @@
     {
         "major":1,
         "minor":5,
-        "patch":"0"
+        "patch":"1"
     },
-    "directDownloadURL":"https://github.com/RustyCabbage/GachaSMods/releases/download/v1.5.0/GachaSMods.v1.5.0.zip",
+    "directDownloadURL":"https://github.com/RustyCabbage/GachaSMods/releases/download/v1.5.1/GachaSMods.v1.5.1.zip",
 }
