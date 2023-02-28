@@ -37,6 +37,13 @@
 	"goat_missile_switching_k",
 	"goat_compact_cabin",
 	"goat_stress_dispersion",
+	# Seeker
+	"SKR_siegfried_axx",
+	"SKR_siegfried_bxx",
+	"SKR_siegfried_xax",
+	"SKR_siegfried_xbx",
+	"SKR_siegfried_xxa",
+	"SKR_siegfried_xxb",
 	
         ### By President Matt Damon#0001
         # these don't do anything
