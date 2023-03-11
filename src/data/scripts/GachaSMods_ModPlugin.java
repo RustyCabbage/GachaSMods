@@ -56,7 +56,7 @@ public class GachaSMods_ModPlugin extends BaseModPlugin {
             CUSTOM_WEIGHTS = MOD_ID + "_" + "weightMult",
             CUSTOM_WEIGHTS_URL = "https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/src/data/GachaSMods_customWeights.json",
             SPECIAL_UPGRADES_MOD_ID = "mayu_specialupgrades",
-            SPECIAL_UPGRADES_CLASS_PREFIX = "data.hullmods.SPGACHA";
+            SPECIAL_UPGRADES_CLASS_PREFIX = "data.hullmods.SHUGACHA";
 
     // setting to default values. overwritten on application and game load
     public static boolean
