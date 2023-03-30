@@ -149,6 +149,7 @@
 		"fronsec_sierrasconcord",				# crash of some kind i heard
 		"gg_lg_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
 		"gg_xiv_fighter",						# (Fighter Expansion Rebalanced) java.util.UnknownFormatConversionException on mouseover
+		"kyeltziv_rangefinders_suojus",			# mrmagolor
 		"loa_ship_factory",						# java.lang.RuntimeException if not on the Anageraisieieamfafgeneisis ship
 		"LuddEnhance_ShieldBlock",				# java.lang.NullPointerException on shielded ships
 		"prv_flickercore",						# java.lang.NullPointerException (probably on non-phase ships?)
@@ -225,5 +226,29 @@
 		"SunriderCeranEngineering",
 		"SunriderSickBay",
 		"sh_TemporalTermination",
+
+		# Requested by Nes
+		"NES_ColorSelector",
+		"NES_Phosphophyllite",
+		"NES_Aquamarine",
+		"NES_Amber",
+		"NES_RoseQuartz",
+		"NES_Cinnabar",
+		"NES_ColorSelector_Volt",
+		"NES_Default",
+		"NES_Crimson",
+		"NES_Hazard",
+		"NES_Verdant",
+		"NES_Sparkle",
+		"NES_Commando",
+		"NES_ColorSelector_HF",
+		"NES_Explorer",
+		"NES_Surveyor",
+		"NES_Rogue",
+		"NES_Infiltrator",
+		"NES_ColorSelector_Herm",
+		"NES_Standard",
+		"NES_Devout",
+		"NES_Riftborn"",
 	],
 }
