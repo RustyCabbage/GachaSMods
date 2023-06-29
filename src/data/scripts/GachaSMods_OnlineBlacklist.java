@@ -36,7 +36,7 @@ public class GachaSMods_OnlineBlacklist {
         } catch (IOException ex) {
             log.error("Failed to load JSON file from URL \"" + url + "\"", ex);
         } catch (JSONException ex) {
-            log.error("Malformed JSON in remote version file at URL \"" + url + "\"", ex);
+            log.error("Malformed JSON at URL \"" + url + "\"", ex);
         }
     }
 
@@ -60,7 +60,7 @@ public class GachaSMods_OnlineBlacklist {
         } catch (IOException ex) {
             log.error("Failed to load JSON file from URL \"" + url + "\"", ex);
         } catch (JSONException ex) {
-            log.error("Malformed JSON in remote version file at URL \"" + url + "\"", ex);
+            log.error("Malformed JSON at URL \"" + url + "\"", ex);
         }
     }
 

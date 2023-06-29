@@ -1,73 +1,73 @@
 {
-	#######################
+#######################
 ###### v important stuff ##
-	#######################
-	#"maxPermanentHullmods":2,
-	# Integer. Default `2`.
-	# This is a vanilla setting, commented out here for easy accessibility.
+#######################
+#"maxPermanentHullmods":2,
+# Integer. Default `2`.
+# This is a vanilla setting, commented out here for easy accessibility.
 
-	"GachaSMods_noSaveScumming": true,
-	# Boolean. Default `true`.
-	# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
+"GachaSMods_noSaveScumming": true,
+# Boolean. Default `true`.
+# If true, ships will roll the same s-mods and bonus xp every time until you've confirmed your choice.
 
-	"GachaSMods_useOnlineBlacklist": false,
-	# Boolean. Default `false`. BUT RECOMMENDED TO BE `true`.
-	# If true, will also check the latest blacklist from the GitHub source:
-	# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/settings.json
-	# Hence it would no longer be necessary to redownload the mod for blacklist updates.
+"GachaSMods_useOnlineBlacklist": true,
+# Boolean. Default `false`. BUT RECOMMENDED TO BE `true`.
+# If true, will also check the latest blacklist from the GitHub source:
+# https://raw.githubusercontent.com/RustyCabbage/GachaSMods/main/data/config/settings.json
+# Hence it would no longer be necessary to redownload the mod for blacklist updates.
 
-	#############################
+#############################
 ###### disable/enable features ##
-	#############################
-	"GachaSMods_disableRandomSMods": false,
-	# Boolean. Default `false`.
-	# If true, hides the Random S-Mod hullmod and allows regular s-modding.
-	## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true (fun as it would be to block s-modding entirely :V).
-	## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
+#############################
+"GachaSMods_disableRandomSMods": false,
+# Boolean. Default `false`.
+# If true, hides the Random S-Mod hullmod and allows regular s-modding.
+## Note: This supercedes the allowStandardSMods setting and is equivalent to setting it to true (fun as it would be to block s-modding entirely :V).
+## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
 
-	"GachaSMods_disableRemoveSMods": false,
-	# Boolean. Default `false`.
-	# If true, hides the Remove S-Mod hullmod. TBH, the intended experience for the mod.
-	## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
+"GachaSMods_disableRemoveSMods": true,
+# Boolean. Default `false`.
+# If true, hides the Remove S-Mod hullmod. TBH, the intended experience for the mod.
+## Warning: doesn't work with versions of Ship Catalogue / Variant Editor (SCVE) before v1.6.0. Oops.
 
-	"GachaSMods_allowStandardSMods": false,
-	# Boolean. Default `false`.
-	# If true, allows regular s-modding but does not affect the two hullmods added by the mod.
-	# Thus allows both randomized s-mods and standard s-modding, and removing s-mods (under default settings).
+"GachaSMods_allowStandardSMods": false,
+# Boolean. Default `false`.
+# If true, allows regular s-modding but does not affect the two hullmods added by the mod.
+# Thus allows both randomized s-mods and standard s-modding, and removing s-mods (under default settings).
 
-	##########################
+##########################
 ###### random s-mod options ##
-	##########################
-	"GachaSMods_selectionMode": "CL",
-	# String. Default `CL`.
-	###  MODES:
-	# `CL`: Classic - Hullmods are selected with uniform probability of selection.
-	# `PR`: Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
-	# `TG`: True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
-	###
-	# Must be spelt correctly, or you're stuck with Classic mode.
-	# You can adjust the Proportional and True Gacha settings further down under 'selection mode options'
+##########################
+"GachaSMods_selectionMode": "TG",
+# String. Default `CL`.
+###  MODES:
+# `CL`: Classic - Hullmods are selected with uniform probability of selection.
+# `PR`: Proportional - Hullmods are selected with weight = 1/OP, with an adjustable increase for free/hidden hullmods.
+# `TG`: True Gacha - Hullmods are split into 4 categories (d-mods, cheap mods, standard mods, hidden mods), with each category being allocated an adjustable weight.
+###
+# Must be spelt correctly, or you're stuck with Classic mode.
+# You can adjust the Proportional and True Gacha settings further down under 'selection mode options'
 
-	"GachaSMods_trueRandomMode": false,
-	# Boolean. Default `false`.
-	# If true, it will be possible to roll (almost) any hullmod. Weights will still follow the selection mode chosen above.
-	## Note: This supercedes the noSaveScumming, onlyXHullmods, and respectNoBuildIn settings and is equivalent to setting them to false.
+"GachaSMods_trueRandomMode": false,
+# Boolean. Default `false`.
+# If true, it will be possible to roll (almost) any hullmod. Weights will still follow the selection mode chosen above.
+## Note: This supercedes the noSaveScumming, onlyXHullmods, and respectNoBuildIn settings and is equivalent to setting them to false.
 
-	"GachaSMods_onlyKnownHullmods": false,
-	# Boolean. Default `false`.
-	# If true, will only roll hullmods known by the player.
+"GachaSMods_onlyKnownHullmods": false,
+# Boolean. Default `false`.
+# If true, will only roll hullmods known by the player.
 
-	"GachaSMods_onlyNotHiddenHullmods": true,
-	# Boolean. Default `true`.
-	# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
-	# If false, you can roll any hidden mod, including d-mods.
+"GachaSMods_onlyNotHiddenHullmods": true,
+# Boolean. Default `true`.
+# If true, will only roll not-hidden hullmods (i.e. modular/learnable hullmods).
+# If false, you can roll any hidden mod, including d-mods.
 
-	"GachaSMods_onlyApplicableHullmods": true,
-	# Boolean. Default `true`.
-	# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
-	# May have strange results with hidden hullmods.
+"GachaSMods_onlyApplicableHullmods": true,
+# Boolean. Default `true`.
+# If true, will only roll hullmods that are applicable on the ship (so no Safety Overrides for capital ships).
+# May have strange results with hidden hullmods.
 
-	"GachaSMods_respectNoBuildIn": true,
+"GachaSMods_respectNoBuildIn": true,
 	# Boolean. Default `true`.
 	# If true, will not roll hullmods that have the no_build_in tag (e.g. Safety Overrides).
 
@@ -249,6 +249,6 @@
 		"NES_ColorSelector_Herm",
 		"NES_Standard",
 		"NES_Devout",
-		"NES_Riftborn"",
+		"NES_Riftborn",
 	],
 }
